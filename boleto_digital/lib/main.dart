@@ -3,9 +3,11 @@ import 'package:boleto_digital/screens/login_screen.dart';
 import 'package:boleto_digital/services/client_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WakelockPlus.enable();
 
   final storage = ClientStorage();
   final bool isLoggedIn = await storage.isLoggedIn();
