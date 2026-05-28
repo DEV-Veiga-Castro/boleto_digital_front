@@ -4,7 +4,7 @@ import 'package:boleto_digital/services/client_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  final String baseUrl = 'http://192.168.1.201:8000/api/v1';
+  var baseUrl = const String.fromEnvironment('API_URL');
 
   Future<bool> login(String username, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');

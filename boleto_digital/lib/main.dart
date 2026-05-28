@@ -29,9 +29,9 @@ class BoletoDigitalApp extends StatelessWidget {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.blackBackground,
-        fontFamily: 'Roboto', //TODO: Definir fonte personalizada (Google Fonts)
+        fontFamily: 'GoogleSans',
       ),
-      initialRoute: isLoggedIn ? '/home' : '/login',
+      initialRoute: '/login',
       routes: {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
