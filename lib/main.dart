@@ -31,7 +31,7 @@ class BoletoDigitalApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.blackBackground,
         fontFamily: 'GoogleSans',
       ),
-      initialRoute: '/login',
+      initialRoute: '/home',
       routes: {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),

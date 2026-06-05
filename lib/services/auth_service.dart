@@ -7,6 +7,7 @@ class AuthService {
   var baseUrl = const String.fromEnvironment('API_URL');
 
   Future<bool> login(String username, String password) async {
+    print("URL API:$baseUrl");
     final url = Uri.parse('$baseUrl/auth/login');
 
     try {
