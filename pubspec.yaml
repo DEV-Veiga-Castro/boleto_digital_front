@@ -67,6 +67,8 @@ flutter:
     - assets/imgs/loading_vc_gif.gif
     - assets/imgs/logo_preta.png
     - assets/imgs/anfora_logo.jpeg
+    - assets/imgs/logo_vc_wide.png
+    - assets/imgs/logo_vc_footer.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

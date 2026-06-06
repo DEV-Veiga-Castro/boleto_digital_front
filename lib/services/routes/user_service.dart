@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:boleto_digital/models/user_model.dart';
+import 'package:boleto_digital/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class UserService {
@@ -21,6 +22,10 @@ class UserService {
       if (response.statusCode == 200) {
         print(jsonDecode(response.body));
         return User.fromJson(jsonDecode(response.body));
+      }
+      
+      if (response.statusCode == 401) {
+        await AuthService().logout();
       }
 
       return null;

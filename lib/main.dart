@@ -1,5 +1,6 @@
 import 'package:boleto_digital/screens/home_screen.dart';
 import 'package:boleto_digital/screens/login_screen.dart';
+import 'package:boleto_digital/screens/send/initial.dart';
 import 'package:boleto_digital/services/client_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
@@ -35,6 +36,7 @@ class BoletoDigitalApp extends StatelessWidget {
       routes: {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
+        '/send': (context) => const InitialSendScreen(),
       },
     );
   }

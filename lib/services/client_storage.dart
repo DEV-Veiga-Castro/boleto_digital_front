@@ -31,7 +31,7 @@ class ClientStorage {
   }
 
   Future<bool> isLoggedIn() async {
-    final accessToken = await getAccessToken();
+    String? accessToken = await getAccessToken();
     return accessToken != null && accessToken.isNotEmpty;
   }
 
