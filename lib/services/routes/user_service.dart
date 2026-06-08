@@ -23,9 +23,10 @@ class UserService {
         print(jsonDecode(response.body));
         return User.fromJson(jsonDecode(response.body));
       }
-      
+
       if (response.statusCode == 401) {
         await AuthService().logout();
+        return null;
       }
 
       return null;
