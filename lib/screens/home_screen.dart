@@ -1,3 +1,5 @@
+import 'package:boleto_digital/models/branch_model.dart';
+import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
@@ -5,6 +7,7 @@ import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/services/routes/user_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +21,10 @@ class _HomeScreenState extends State<HomeScreen> {
   User? user;
   int _countInTransit = 0;
   int _countReceived = 0;
+  List<Branch> _userBranches = [];
+  int? _selectedBranch = 0;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -26,18 +33,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    bool loggedIn = await _storage.isLoggedIn();
-    print("User logged in: $loggedIn");
+    // final accessToken = await _storage.getAccessToken();
+    final tokenValid = await _storage.isAccessTokenValid();
 
-    if (!mounted) {
-      return;
-    } else if (!loggedIn) {
+    if (!mounted) return;
+
+    if (!tokenValid) {
+      // Navega para login se o token estiver ausente ou expirado
       Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      // Caso o usuário esteja logado, carrega as informações pessoais
-      await _loadUserProfile();
-      await _listMovimentacoes();
+      return;
     }
+
+    // Caso o token seja válido, carrega perfil e movimentações
+    await _loadUserProfile();
+    await _listMovimentacoes();
+    await _listBranches();
+    await _listProducts();
   }
 
   Future<void> _loadUserProfile() async {
@@ -46,11 +57,27 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userProfile != null) {
       setState(() {
         user = _storage.user;
+        _userBranches = user!.branch;
+
+        final userProvider = context.read<UserProvider>();
+
+        userProvider.setUser(user!);
+
+        debugPrint("PDV ATUAL ${_userBranches.first.pdv!}");
+
+        userProvider.setActualBranch(_userBranches.first.pdv!);
+
+        _selectedBranch = userProvider.user!.actualBranch;
       });
     } else {
       final accessToken = await _storage.getAccessToken();
+      if (accessToken == null) {
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
+
       User? userProfile = await UserService().getUserProfile(
-        accessToken: accessToken!,
+        accessToken: accessToken,
       );
 
       if (userProfile != null) {
@@ -58,10 +85,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
         setState(() {
           user = _storage.user;
+          _userBranches = user!.branch;
+
+          final userProvider = context.read<UserProvider>();
+
+          userProvider.setUser(user!);
+
+          print("PDV ATUAL ${_userBranches.first.pdv!}");
+
+          userProvider.setActualBranch(_userBranches.first.pdv!);
         });
       } else {
-        // await AuthService().logout();
-        initState();
+        // Se não conseguiu carregar o perfil (ex.: 401), redireciona ao login
+        Navigator.pushReplacementNamed(context, '/login');
       }
     }
   }
@@ -70,15 +106,41 @@ class _HomeScreenState extends State<HomeScreen> {
     // Captura o AccessToken do usuário
     String? accessToken = await _storage.getAccessToken();
 
-    // Chama e atribiu o retorno da listagem das trasnferencias nas variáveis
+    if (accessToken == null) return;
+
+    // Chama e atribui o retorno da listagem das transferencias nas variáveis
     _countInTransit = await DigitalTransferService().countMovimentacoes(
-      accessToken: accessToken!,
+      accessToken: accessToken,
       status: "transito",
     );
     _countReceived = await DigitalTransferService().countMovimentacoes(
       accessToken: accessToken,
       status: "recebida",
     );
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _listBranches() async {
+    String? token = await _storage.getAccessToken();
+
+    // final branches = await BranchService().listBranch(accessToken: token!);
+
+    if (!mounted) return;
+
+    await context.read<BranchProvider>().loadBranches(token);
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _listProducts() async {
+    String? token = await _storage.getAccessToken();
+
+    if (!mounted) return;
+
+    await context.read<ProductProvider>().loadProducts(token);
+
+    if (mounted) setState(() {});
   }
 
   @override
@@ -87,9 +149,112 @@ class _HomeScreenState extends State<HomeScreen> {
     final viewWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
+      key: _scaffoldKey,
       child: Scaffold(
+        drawer: Drawer(
+          child: Column(
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(color: AppColors.verdeBoti),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    "Menu",
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: .zero,
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.store_outlined,
+                        color: AppColors.verdeBoti,
+                        size: 30,
+                      ),
+                      title: Text(
+                        "$_selectedBranch | ",
+                        maxLines: 1,
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      titleAlignment: ListTileTitleAlignment.center,
+                      trailing: MenuAnchor(
+                        alignmentOffset: Offset(-(viewHeight * 0.2), 0),
+                        style: MenuStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            AppColors.cinzaContainer,
+                          ),
+                        ),
+                        builder: (context, controller, child) {
+                          return IconButton(
+                            onPressed: () {
+                              if (controller.isOpen) {
+                                setState(() {
+                                  controller.close();
+                                });
+                              } else {
+                                controller.open();
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              // fixedSize: Size(viewWidth *, 40),
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                            ),
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: AppColors.verdeBoti,
+                              size: 30,
+                            ),
+                          );
+                        },
+                        menuChildren: _userBranches.map((branches) {
+                          return MenuItemButton(
+                            onPressed: () {
+                              // print(branches.pdv);
+                              setState(() {
+                                _selectedBranch = branches.pdv;
+                                context.read<UserProvider>().setActualBranch(
+                                  branches.pdv!,
+                                );
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: Size(viewWidth * 0.6, 40),
+                            ),
+                            child: Text(
+                              "${branches.pdv} | ${branches.name}",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: Icon(Icons.logout),
+                title: Text("Sair"),
+                onTap: () async {
+                  await AuthService().logout();
+                  Navigator.pushNamed(context, '/login');
+                },
+              ),
+            ],
+          ),
+        ),
         appBar: AppBar(
           elevation: 3,
+          automaticallyImplyLeading: false,
           shadowColor: Colors.white.withAlpha(150),
           toolbarHeight: viewHeight * 0.1,
           shape: RoundedRectangleBorder(
@@ -119,12 +284,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: const Image(
-                        image: AssetImage("assets/imgs/anfora_logo.jpeg"),
-                        fit: BoxFit.cover,
-                      ),
+                    child: Builder(
+                      builder: (context) {
+                        return TextButton(
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            // fixedSize: Size(80, 80),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: EdgeInsets.all(0),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: const Image(
+                              image: AssetImage("assets/imgs/anfora_logo.jpeg"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -180,6 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 foregroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
                                 // shape: RoundedRectangleBorder(
                                 //   borderRadius: BorderRadius.circular(20),
                                 // ),

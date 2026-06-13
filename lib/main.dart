@@ -1,25 +1,52 @@
+import 'package:boleto_digital/models/branch_model.dart';
+import 'package:boleto_digital/models/dt_model.dart';
+import 'package:boleto_digital/models/product_model.dart';
+import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/screens/home_screen.dart';
 import 'package:boleto_digital/screens/login_screen.dart';
 import 'package:boleto_digital/screens/send/initial.dart';
+import 'package:boleto_digital/screens/send/insert.dart';
 import 'package:boleto_digital/services/client_storage.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:provider/provider.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WakelockPlus.enable();
+
+  // final cameras = await availableCameras();
+
+  // final firstCamera = cameras.first;
 
   final storage = ClientStorage();
   final bool isLoggedIn = await storage.isLoggedIn();
 
-  runApp(BoletoDigitalApp(isLoggedIn: isLoggedIn));
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TransferProvider()),
+        ChangeNotifierProvider(create: (_) => BranchProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ],
+      child: BoletoDigitalApp(isLoggedIn: isLoggedIn),
+    ),
+  );
 }
 
 class BoletoDigitalApp extends StatelessWidget {
   final bool isLoggedIn;
+  // final CameraDescription camera;
 
-  const BoletoDigitalApp({super.key, required this.isLoggedIn});
+  const BoletoDigitalApp({
+    super.key,
+    required this.isLoggedIn,
+    // required this.camera,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +59,12 @@ class BoletoDigitalApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.blackBackground,
         fontFamily: 'GoogleSans',
       ),
-      initialRoute: '/home',
+      initialRoute: '/login',
       routes: {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/send': (context) => const InitialSendScreen(),
+        '/send/insert': (context) => const InsertSendScreen(),
       },
     );
   }

@@ -22,22 +22,20 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _checkExistingSession();
+    _checkLoginStatus();
   }
 
-  Future<void> _checkExistingSession() async {
-    final token = await _storage.isLoggedIn();
+  Future<void> _checkLoginStatus() async {
+    // final accesToken = await _storage.getAccessToken();
+    final tokenValid = await _storage.isAccessTokenValid();
 
     if (!mounted) return;
 
-    if (token) {
-      print("Token encontrado, navegando para a tela principal...");
-      // Se já existe um token, navega para a tela principal
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      print("Nenhum token encontrado, permanecendo na tela de login.");
+    if (!tokenValid) {
+      return;
     }
 
+    Navigator.pushNamed(context, '/home');
   }
 
   Future<void> _handleLogin() async {
@@ -106,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final viewHeight = MediaQuery.of(context).size.height;
     final viewWidth = MediaQuery.of(context).size.width;
-    
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -188,7 +186,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: viewWidth * 0.8,
                       child: TextField(
                         controller: _loginController,
-                        style: const TextStyle(color: Colors.black, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
                         decoration: const InputDecoration(
                           hintText: 'nome.sobrenome',
                           label: Text(
@@ -213,7 +214,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextField(
                         controller: _passwordController,
                         obscureText: true,
-                        style: const TextStyle(color: Colors.black, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
                         decoration: const InputDecoration(
                           hintText: '**********',
                           label: Text(
@@ -238,7 +242,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
-                              style: TextStyle(color: Colors.grey, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ),
@@ -292,7 +299,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const Text(
                               'Ou',
-                              style: TextStyle(color: Colors.grey, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
                             ),
                             const Expanded(
                               child: Divider(

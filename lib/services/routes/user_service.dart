@@ -31,7 +31,7 @@ class UserService {
 
       return null;
     } catch (e) {
-      print("Error fetching user profile: $e");
+      // print("Error fetching user profile: $e");
       return null;
     }
   }

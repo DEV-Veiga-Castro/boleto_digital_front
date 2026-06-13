@@ -26,17 +26,40 @@ class DigitalTransferService {
         final data = jsonDecode(response.body);
 
         return data['count'] as int;
-      } 
-      else if (response.statusCode == 401){
+      } else if (response.statusCode == 401) {
         // Se o token for inválido ou expirado, desloga o usuário
         await AuthService().logout();
       }
 
       return 0;
-
     } catch (e) {
       print("Error fetching movimentacoes: $e");
       return 0;
     }
+  }
+
+  Future<int> createMovimentacao({required String accessToken}) async {
+    final url = Uri.parse('$baseURL/');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+
+        return data['transfer_id'] as int;
+      }
+    } catch (e) {
+      print("Erro ao salvar movimentação: $e");
+      return 0;
+    }
+
+    return 0;
   }
 }
