@@ -44,7 +44,8 @@ class ProductModel {
     codProduct: json['cod_product'] as int?,
     description: json['description'] as String?,
     category: json['category'] != null
-        ? CategoryModel.fromJson(json['category']) : null,
+        ? CategoryModel.fromJson(json['category'])
+        : null,
     price: (json['price'] as num?)?.toDouble() ?? 0,
     isActive: json['is_active'] ?? true,
     updatedAt: json['updated_at'] ?? '',
@@ -92,11 +93,21 @@ class ProductProvider extends ChangeNotifier {
     );
 
     if (index != -1) {
-      notifyListeners();
       return true;
     } else {
-      notifyListeners();
       return false;
+    }
+  }
+
+  String getDescription(int productID) {
+    if (_products.isEmpty) return 'Descrição';
+
+    final index = _products.indexWhere((item) => item.codProduct == productID);
+
+    if (index != -1) {
+      return _products[index].description ?? 'Descrição';
+    } else {
+      return 'Descrição';
     }
   }
 

@@ -1,7 +1,8 @@
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
-// import 'package:boleto_digital/models/user_model.dart';
-// import 'package:boleto_digital/services/client_storage.dart';
+import 'package:boleto_digital/models/user_model.dart';
+import 'package:boleto_digital/services/client_storage.dart';
+import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -17,8 +18,7 @@ class InsertSendScreen extends StatefulWidget {
 }
 
 class _InsertSendScreen extends State<InsertSendScreen> {
-  // final _storage = ClientStorage();
-  // User? _user;
+  final _storage = ClientStorage();
 
   TextEditingController productCode = TextEditingController();
   final MobileScannerController scannerController = MobileScannerController(
@@ -33,24 +33,178 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     scannerController.dispose();
     super.dispose();
   }
 
+  Future<void> _showItemModal(
+    BuildContext context,
+    DigitalTransferItems item,
+  ) async {
+    // Remove o focus do textfield do código
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final descriptionProvider = context.read<ProductProvider>();
+    final transferProvider = context.read<TransferProvider>();
+
+    int quantitySent = item.quantitySent!;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<TransferProvider>(
+          builder: (context, transferProvider, child) {
+            return Container(
+              height: 250,
+              padding: EdgeInsets.all(40.0),
+              decoration: BoxDecoration(
+                color: AppColors.cinzaContainer,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "CÓDIGO: ",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                "    ${item.productID}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                "DESCRIÇÃO: ",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                descriptionProvider.getDescription(
+                                  item.productID!,
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          transferProvider.removeItem(item.productID!);
+                          Navigator.pop(context);
+
+                          setState(() {});
+                        },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white.withAlpha(10),
+                        ),
+                        icon: Icon(
+                          Icons.delete_outlined,
+                          color: Colors.red,
+                          size: 26,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(color: Colors.grey),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          transferProvider.subItem(item.productID!);
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.exposure_minus_1_rounded),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withAlpha(20),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(15),
+                              blurRadius: 3,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.all(12),
+                        width: 60,
+                        alignment: Alignment.center,
+                        child: Text(
+                          "${transferProvider.getQuantitySent(item.productID!)}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          transferProvider.addItem(item.productID!);
+
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.exposure_plus_1_rounded),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> insertItens(int productID) async {
+    if (!mounted) return;
+
     if (productID.isNaN) {
-      debugPrint("Produto vazio");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Código vazio, não foi possível adicionar!",
+            style: TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Colors.amber[200],
+        ),
+      );
       return;
     }
-
-    if (!mounted) return;
 
     if (productID.toString().length > 5) {
       productID = int.parse(
@@ -88,12 +242,69 @@ class _InsertSendScreen extends State<InsertSendScreen> {
     if (mounted) setState(() {});
   }
 
+  Future<void> saveTransferCache(List itens) async {
+    try {
+      if (!mounted) return;
+
+      if (itens.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "A lista de itens está vazia!",
+              style: TextStyle(color: Colors.black),
+            ),
+            backgroundColor: Colors.amber[200],
+          ),
+        );
+
+        return;
+      }
+
+      final provider = context.read<TransferProvider>();
+      String? accessToken = await _storage.getAccessToken();
+
+      if (provider.transfer != null) {
+        String response = await DigitalTransferService()
+            .updateMovimentacaoItems(
+              accessToken: accessToken!,
+              transferID: provider.transfer!.id!,
+              digitalItems: provider.transfer!.items,
+            );
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("$response")));
+
+        Navigator.pushNamed(context, '/send/revision');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Ocorreu um erro ao salvar a movimentação, tente novamente!",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Erro ao salvar a movimentação, tente novamente! - $e",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.vermelhoOui,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewHeight = MediaQuery.of(context).size.height;
     final viewWidth = MediaQuery.of(context).size.width;
 
     final transfer = context.read<TransferProvider>().transfer;
+    final productProvider = context.read<ProductProvider>();
 
     final itens = transfer?.items ?? [];
 
@@ -248,6 +459,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                             child: TextField(
                               controller: productCode,
                               // maxLength: 5,
+                              keyboardType: TextInputType.numberWithOptions(),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Código",
@@ -341,7 +553,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           title: Text(
-                            "Descriçãdwdawdawdawdawwdawdawdawdawo",
+                            productProvider.getDescription(item.productID!),
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
@@ -353,9 +565,9 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          // TODO: Implementar abertura de MODAL com as informações desse item e as opções de diminuir quantidade e exclusão
                           onTap: () {
-                            print("${item.productID}");
+                            // Abre um modal com as informações do item
+                            _showItemModal(context, item);
                           },
                         ),
                       ),
@@ -376,7 +588,6 @@ class _InsertSendScreen extends State<InsertSendScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
-              // TODO: Implementar a abertura da camera
               onPressed: () async {
                 if (!scannerAtivo) {
                   await scannerController.start();
@@ -398,8 +609,9 @@ class _InsertSendScreen extends State<InsertSendScreen> {
               child: Icon(Icons.barcode_reader, size: 24, color: Colors.white),
             ),
             ElevatedButton(
-              // TODO: Implementar o salvamento dos itens na movimentação
-              onPressed: () {},
+              onPressed: () async {
+                await saveTransferCache(itens);
+              },
               style: OutlinedButton.styleFrom(
                 minimumSize: Size(viewWidth * 0.6, viewHeight * 0.06),
                 backgroundColor: AppColors.verdeBoti,

@@ -55,20 +55,20 @@ class _HomeScreenState extends State<HomeScreen> {
     User? userProfile = _storage.user;
 
     if (userProfile != null) {
-      setState(() {
-        user = _storage.user;
-        _userBranches = user!.branch;
+      user = _storage.user;
+      _userBranches = user!.branch;
 
-        final userProvider = context.read<UserProvider>();
+      final userProvider = context.read<UserProvider>();
 
-        userProvider.setUser(user!);
+      userProvider.setUser(user!);
 
-        debugPrint("PDV ATUAL ${_userBranches.first.pdv!}");
+      debugPrint("PDV ATUAL ${_userBranches.first.pdv!}");
 
-        userProvider.setActualBranch(_userBranches.first.pdv!);
+      userProvider.setActualBranch(_userBranches.first.pdv!);
 
-        _selectedBranch = userProvider.user!.actualBranch;
-      });
+      _selectedBranch = userProvider.user!.actualBranch;
+      
+      setState(() {});
     } else {
       final accessToken = await _storage.getAccessToken();
       if (accessToken == null) {
@@ -327,7 +327,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/history');
+              },
               padding: EdgeInsets.only(right: 16),
               icon: const Icon(
                 Icons.history_rounded,

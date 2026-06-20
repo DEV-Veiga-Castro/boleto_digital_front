@@ -1,17 +1,20 @@
 import 'package:boleto_digital/models/branch_model.dart';
 import 'package:boleto_digital/models/dt_model.dart';
+import 'package:boleto_digital/models/history_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
+import 'package:boleto_digital/screens/history.dart';
 import 'package:boleto_digital/screens/home_screen.dart';
 import 'package:boleto_digital/screens/login_screen.dart';
 import 'package:boleto_digital/screens/send/initial.dart';
 import 'package:boleto_digital/screens/send/insert.dart';
+import 'package:boleto_digital/screens/send/revision.dart';
 import 'package:boleto_digital/services/client_storage.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +26,7 @@ Future<void> main() async {
 
   final storage = ClientStorage();
   final bool isLoggedIn = await storage.isLoggedIn();
-
+  await initializeDateFormatting('pt_BR', null);
 
   runApp(
     MultiProvider(
@@ -32,6 +35,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => BranchProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => TransferHistoryProvider()),
       ],
       child: BoletoDigitalApp(isLoggedIn: isLoggedIn),
     ),
@@ -65,6 +69,8 @@ class BoletoDigitalApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/send': (context) => const InitialSendScreen(),
         '/send/insert': (context) => const InsertSendScreen(),
+        '/send/revision': (context) => const RevisionScreen(),
+        '/history': (context) => const HistoryScreen(),
       },
     );
   }

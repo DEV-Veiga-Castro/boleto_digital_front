@@ -17,7 +17,7 @@ class InitialSendScreen extends StatefulWidget {
 class _InitialSendScreen extends State<InitialSendScreen> {
   final _storage = ClientStorage();
   User? _user;
-  dynamic _userBranches = [];
+  final dynamic _userBranches = [];
   // var values = products.map((product) => product['price'] as double)
 
   IconData iconTipoMov = Icons.keyboard_arrow_down;
@@ -71,11 +71,11 @@ class _InitialSendScreen extends State<InitialSendScreen> {
       String? accessToken = await _storage.getAccessToken();
       final actualBranch = context.read<UserProvider>().user?.actualBranch;
 
-      if (!mounted) return;
-
       if (userProfile != null) {
         _user = _storage.user;
       }
+
+      if (!mounted) return;
 
       if (selectedLojaDestino.toString() == "Selecionar unidade") {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,18 +92,21 @@ class _InitialSendScreen extends State<InitialSendScreen> {
         lojaOrigem: actualBranch,
         lojaDestino: selectedLojaDestino,
         tipoTransferencia: selectedMovimentacao,
+        status: 'em_andamento',
         sendedBy: _user?.id,
         comments: observacoesText.text,
         items: [],
       );
 
-      await context.read<TransferProvider>().setTransfer(
+      final provider = context.read<TransferProvider>();
+      
+      await provider.setTransfer(
         transfer,
         accessToken!,
       );
 
       // Provider.of(context, listen: false);
-      final provider = context.read<TransferProvider>();
+      // final provider = context.read<TransferProvider>();
 
       if (provider.transfer != null) {
         Navigator.pushNamed(context, "/send/insert");
@@ -127,6 +130,8 @@ class _InitialSendScreen extends State<InitialSendScreen> {
         ),
       );
     }
+
+    if (mounted) setState(() {});
   }
 
   @override
@@ -572,8 +577,8 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                     SizedBox(
                       width: viewWidth * 0.8,
                       child: ElevatedButton(
-                        onPressed: () {
-                          saveTransferCache();
+                        onPressed: () async {
+                          await saveTransferCache();
                         },
                         style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(

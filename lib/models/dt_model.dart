@@ -23,7 +23,7 @@ class DigitalTransferItems {
       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    'digital_transfer_id': id,
     'product_id': productID,
     'quantity_sent': quantitySent,
     'quantity_received': quantityReceived,
@@ -37,11 +37,12 @@ class DigitalTransfer {
   String? tipoTransferencia;
   int? sendedBy;
   int? receivedBy;
-  int? nfNumber;
+  String? nfNumber;
   String? comments;
   String? status;
   // List<Map<String, dynamic>> items;
   List<DigitalTransferItems> items;
+  String? createdAt;
 
   DigitalTransfer({
     this.id,
@@ -54,6 +55,7 @@ class DigitalTransfer {
     this.comments,
     this.status,
     required this.items,
+    this.createdAt
   });
 
   factory DigitalTransfer.fromJson(Map<String, dynamic> json) =>
@@ -64,12 +66,13 @@ class DigitalTransfer {
         tipoTransferencia: json['tipo_transferencia'] as String?,
         sendedBy: json['sended_by'] as int?,
         receivedBy: json['received_by'] as int?,
-        nfNumber: json['nf_number'] as int?,
+        nfNumber: json['nf_number'] as String?,
         comments: json['comments'] as String?,
-        status: json['status'] as String?,
+        status: json['status'] as String? ?? "em_andamento",
         items: (json['items'] as List<dynamic>? ?? [])
             .map((item) => DigitalTransferItems.fromJson(item))
             .toList(),
+        createdAt: json['created_at'] as String?
       );
 
   Map<String, dynamic> toJson() => {
@@ -82,6 +85,7 @@ class DigitalTransfer {
     'comments': comments,
     'status': status,
     'items': items.map(((e) => e.toJson())).toList(),
+    'created_at': createdAt
   };
 }
 
@@ -91,15 +95,19 @@ class TransferProvider extends ChangeNotifier {
   DigitalTransfer? get transfer => _transfer;
 
   Future<void> setTransfer(DigitalTransfer value, String accessToken) async {
+    print("TRANFER ATUAL:: $transfer");
     if (transfer != null) return;
 
-    final int transferID = await DigitalTransferService().createMovimentacao(
+    _transfer = value;
+
+    final transferID = await DigitalTransferService().createMovimentacao(
       accessToken: accessToken,
+      digitalTransfer: _transfer!,
     );
 
-    value.id = transferID;
-
-    _transfer = value;
+    if (transferID != 0) {
+      value.id = transferID;
+    }
 
     notifyListeners();
   }
@@ -117,6 +125,7 @@ class TransferProvider extends ChangeNotifier {
     } else {
       _transfer!.items.add(
         DigitalTransferItems(
+          id: _transfer!.id,
           productID: productID,
           quantitySent: 1,
           quantityReceived: 0,
@@ -125,6 +134,64 @@ class TransferProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  void subItem(int productID) {
+    if (_transfer == null) return;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      _transfer!.items[index].quantitySent =
+          (_transfer!.items[index].quantitySent ?? 0) - 1;
+    }
+
+    notifyListeners();
+  }
+
+  bool removeItem(int productID) {
+    if (_transfer == null) return false;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      _transfer!.items.removeAt(index);
+    } else {
+      return false;
+    }
+
+    return false;
+  }
+
+  int getQuantitySent(int productID) {
+    if (_transfer == null) return 0;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      return _transfer!.items[index].quantitySent!;
+    }
+
+    return 0;
+  }
+
+  int getTotalQuantitySent() {
+    if (_transfer == null) return 0;
+
+    int total = 0;
+    final length = _transfer!.items.length;
+
+    for (int i = 0; i < length; i++) {
+      total += _transfer!.items[i].quantitySent!;
+    }
+
+    return total;
   }
 
   void clear() {
