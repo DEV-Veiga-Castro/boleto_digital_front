@@ -7,23 +7,43 @@ import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class RevisionScreen extends StatefulWidget {
-  const RevisionScreen({super.key});
+class RevisionReceiveScreen extends StatefulWidget {
+  const RevisionReceiveScreen({super.key});
 
   @override
-  _RevisionScreenState createState() => _RevisionScreenState();
+  _RevisionReceiveScreen createState() => _RevisionReceiveScreen();
 }
 
-class _RevisionScreenState extends State<RevisionScreen> {
+class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
   final _storage = ClientStorage();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
-  Future<void> createMovimentacao() async {
+  Future<bool> verifyDiscrepancy() async {
+    // A função retornará TRUE caso haja alguma discrepancia no items
+    // Ou retornará FALSE, caso todos os itens estão OK
+
+    final provider = context.read<TransferProvider>();
+    List<DigitalTransferItems> items = provider.transfer!.items;
+    int discrepancies = 0;
+
+    for (int i = 0; i < items.length; i++) {
+      if (items[i].quantitySent != items[i].quantityReceived) {
+        discrepancies += 1;
+      }
+    }
+
+    if (discrepancies > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> updateMovimentacao() async {
     if (!mounted) return;
 
     bool hasAT = await _storage.isAccessTokenValid();
@@ -40,23 +60,98 @@ class _RevisionScreenState extends State<RevisionScreen> {
       setState(() {});
     }
 
+    bool hasDiscrepancies = await verifyDiscrepancy();
+
+    if (hasDiscrepancies) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              "Movimentação com Discrepâncias!",
+              style: TextStyle(
+                color: Colors.yellow,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ListBody(
+                children: [
+                  Text(
+                    "A movimentação contém discrepâncias entre os itens enviados e os recebidos, tem certeza que deseja confirmar o recebimento?",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  return;
+                },
+                child: const Text(
+                  "Voltar",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await updateTranfer();
+                },
+                child: const Text(
+                  "Confirmar",
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      await updateTranfer();
+    }
+  }
+
+  Future<void> updateTranfer() async {
     final accessToken = await _storage.getAccessToken();
     final provider = context.read<TransferProvider>();
 
     try {
-      final response = await DigitalTransferService().createMovimentacao(
+      print(provider.transfer!.uuid);
+
+      String response = await DigitalTransferService().updateMovimentacaoItems(
         accessToken: accessToken!,
-        digitalTransfer: provider.transfer!,
+        transferID: provider.transfer!.uuid!,
+        digitalItems: provider.transfer!.items,
+        model: "receive"
       );
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("$response!")));
+      ).showSnackBar(SnackBar(content: Text(response)));
+
+      response = await DigitalTransferService().updateTransferStatus(
+        accessToken: accessToken,
+        transferID: provider.transfer!.uuid!,
+        status: 'conferida',
+        model: 'receive'
+      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(response)));
 
       provider.clear();
-      
+
+      setState(() {});
+
       Navigator.pushNamed(context, '/home');
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("Eu sou o erro: $stackTrace");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("$e!")));
@@ -392,13 +487,26 @@ class _RevisionScreenState extends State<RevisionScreen> {
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
-                          trailing: Text(
-                            '${item.quantitySent}x',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${item.quantitySent}x | ',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                '${item.quantityReceived}x',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -420,7 +528,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await createMovimentacao();
+                await updateMovimentacao();
               },
               style: OutlinedButton.styleFrom(
                 backgroundColor: AppColors.verdeBoti,

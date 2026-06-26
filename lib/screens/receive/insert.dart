@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
-class InsertSendScreen extends StatefulWidget {
-  const InsertSendScreen({super.key});
+class InsertReceiveScreen extends StatefulWidget {
+  const InsertReceiveScreen({super.key});
 
   // final CameraDescription camera;
 
   @override
-  _InsertSendScreen createState() => _InsertSendScreen();
+  _InsertReceiveScreen createState() => _InsertReceiveScreen();
 }
 
-class _InsertSendScreen extends State<InsertSendScreen> {
+class _InsertReceiveScreen extends State<InsertReceiveScreen> {
   final _storage = ClientStorage();
   late FocusNode _focusTextField;
 
@@ -34,7 +34,6 @@ class _InsertSendScreen extends State<InsertSendScreen> {
   @override
   void initState() {
     super.initState();
-
     _focusTextField = FocusNode();
   }
 
@@ -91,7 +90,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                                 ),
                               ),
                               Text(
-                                "    ${item.productID}",
+                                "${item.productID}",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -145,7 +144,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          transferProvider.subItem(item.productID!);
+                          transferProvider.subReceivedItem(item.productID!);
                           setState(() {});
                         },
                         icon: Icon(Icons.exposure_minus_1_rounded),
@@ -166,7 +165,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                         width: 60,
                         alignment: Alignment.center,
                         child: Text(
-                          "${transferProvider.getQuantitySent(item.productID!)}",
+                          "${transferProvider.getQuantityReceived(item.productID!)}",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -176,7 +175,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          transferProvider.addItem(item.productID!);
+                          transferProvider.addReceivedItem(item.productID!);
 
                           setState(() {});
                         },
@@ -221,17 +220,29 @@ class _InsertSendScreen extends State<InsertSendScreen> {
     lastCode = "$productID";
 
     final product = context.read<ProductProvider>().products;
+
     final productIndex = product.indexWhere(
       (item) => item.codProduct == productID,
     );
 
     if (productIndex != -1) {
-      context.read<TransferProvider>().addItem(productID);
+      final provider = context.read<TransferProvider>();
+
+      String response = provider.addReceivedItem(productID);
+
+      if (response != "") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response, style: TextStyle(color: Colors.black)),
+            backgroundColor: Colors.amber[200],
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "Produto não encontrado: $productID",
+            "Produto não cadastrado: $productID",
             style: TextStyle(color: Colors.black),
           ),
           backgroundColor: Colors.amber[200],
@@ -267,7 +278,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       // String? accessToken = await _storage.getAccessToken();
 
       if (provider.transfer != null) {
-        Navigator.pushNamed(context, '/send/revision');
+        Navigator.pushNamed(context, '/receive/revision');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -469,9 +480,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                                   context,
                                 ).requestFocus(_focusTextField);
                               } else {
-
                                 insertItens(int.parse(productCode.text));
-                                
                               }
                             },
                             icon: Icon(
@@ -557,13 +566,26 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
-                          trailing: Text(
-                            '${item.quantitySent}x',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${item.quantitySent}x | ',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                "${item.quantityReceived}x",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                           onTap: () {
                             // Abre um modal com as informações do item

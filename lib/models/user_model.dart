@@ -81,7 +81,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setActualBranch(int pdv) {
+  Future<void> setActualBranch(int pdv) async {
     if (_user == null) return;
 
     _user!.actualBranch = pdv;

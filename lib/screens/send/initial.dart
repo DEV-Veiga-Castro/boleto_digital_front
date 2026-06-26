@@ -51,8 +51,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
 
     if (transferProvider.transfer != null) {
       setState(() {
-        selectedMovimentacao =
-            transferProvider.transfer?.tipoTransferencia ?? "";
+        selectedMovimentacao = transferProvider.transfer?.tipoTransferencia ?? "";
         selectedLojaDestino = transferProvider.transfer?.lojaDestino ?? "";
         observacoesText.text = transferProvider.transfer?.comments ?? "";
       });
@@ -99,10 +98,12 @@ class _InitialSendScreen extends State<InitialSendScreen> {
       );
 
       final provider = context.read<TransferProvider>();
-      
+      final user = context.read<UserProvider>().user;
+
       await provider.setTransfer(
         transfer,
         accessToken!,
+        user!.actualBranch!,
       );
 
       // Provider.of(context, listen: false);

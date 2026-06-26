@@ -54,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUserProfile() async {
     User? userProfile = _storage.user;
 
+    if (!mounted) return;
+
     if (userProfile != null) {
       user = _storage.user;
       _userBranches = user!.branch;
@@ -62,13 +64,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
       userProvider.setUser(user!);
 
-      debugPrint("PDV ATUAL ${_userBranches.first.pdv!}");
+      if (userProvider.user!.actualBranch == null) {
+        debugPrint("PDV ATUAL ${_userBranches.first.pdv!}");
 
-      userProvider.setActualBranch(_userBranches.first.pdv!);
+        await userProvider.setActualBranch(_userBranches.first.pdv!);
+      } else {
+        _selectedBranch = userProvider.user!.actualBranch;
+      }
 
-      _selectedBranch = userProvider.user!.actualBranch;
-      
+      if (_selectedBranch == 0) {
+        _selectedBranch = userProvider.user!.actualBranch;
+
+        debugPrint("PDV SELECIONADO: $_selectedBranch");
+      }
+
+      debugPrint("PDV SELECIONADO: $_selectedBranch");
+
       setState(() {});
+
+      if (mounted) setState(() {});
     } else {
       final accessToken = await _storage.getAccessToken();
       if (accessToken == null) {
@@ -83,18 +97,24 @@ class _HomeScreenState extends State<HomeScreen> {
       if (userProfile != null) {
         await _storage.setUserProfile(userProfile);
 
-        setState(() {
-          user = _storage.user;
-          _userBranches = user!.branch;
+        user = _storage.user;
+        _userBranches = user!.branch;
 
-          final userProvider = context.read<UserProvider>();
+        final userProvider = context.read<UserProvider>();
 
-          userProvider.setUser(user!);
+        userProvider.setUser(user!);
 
-          print("PDV ATUAL ${_userBranches.first.pdv!}");
+        debugPrint("PDV ATUAL 2 ${_userBranches.first.pdv!}");
 
-          userProvider.setActualBranch(_userBranches.first.pdv!);
-        });
+        userProvider.setActualBranch(_userBranches.first.pdv!);
+
+        if (_selectedBranch == 0) {
+          _selectedBranch = userProvider.user!.actualBranch;
+
+          debugPrint("PDV SELECIONADO: $_selectedBranch");
+        }
+
+        setState(() {});
       } else {
         // Se não conseguiu carregar o perfil (ex.: 401), redireciona ao login
         Navigator.pushReplacementNamed(context, '/login');
@@ -212,14 +232,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         menuChildren: _userBranches.map((branches) {
                           return MenuItemButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // print(branches.pdv);
-                              setState(() {
-                                _selectedBranch = branches.pdv;
-                                context.read<UserProvider>().setActualBranch(
-                                  branches.pdv!,
-                                );
-                              });
+                              _selectedBranch = branches.pdv;
+
+                              print("EU selecionei $_selectedBranch");
+
+                              await context
+                                  .read<UserProvider>()
+                                  .setActualBranch(_selectedBranch!);
+
+                              setState(() {});
                             },
                             style: OutlinedButton.styleFrom(
                               minimumSize: Size(viewWidth * 0.6, 40),
@@ -426,56 +449,65 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             SizedBox(height: 30),
-                            Container(
-                              width: viewWidth * 0.8,
-                              height: viewHeight * 0.2,
-                              decoration: BoxDecoration(
-                                color: AppColors.cinzaContainer,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.verdeBoti.withAlpha(200),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/receive/list');
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(
-                                      Icons.swipe_down_outlined,
-                                      color: AppColors.verdeBoti,
-                                      size: 60,
-                                    ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "RECEBER",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        Text(
-                                          "MOVIMENTAÇÃO",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
+                              child: Container(
+                                width: viewWidth * 0.8,
+                                height: viewHeight * 0.2,
+                                decoration: BoxDecoration(
+                                  color: AppColors.cinzaContainer,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.verdeBoti.withAlpha(200),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 4),
                                     ),
                                   ],
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Icon(
+                                        Icons.swipe_down_outlined,
+                                        color: AppColors.verdeBoti,
+                                        size: 60,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "RECEBER",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            "MOVIMENTAÇÃO",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

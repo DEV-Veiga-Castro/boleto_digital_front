@@ -40,7 +40,7 @@ class DigitalTransferService {
     }
   }
 
-  Future<int> createMovimentacao({
+  Future<String> createMovimentacao({
     required String accessToken,
     required DigitalTransfer digitalTransfer,
   }) async {
@@ -66,22 +66,63 @@ class DigitalTransferService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
 
-        return data['transfer_id'] as int;
+        return data['message'];
+      }
+    } catch (e) {
+      // print("Erro ao salvar movimentação: $e");
+      return "Erro ao salvar movimentação: $e";
+    }
+
+    return ":)";
+  }
+
+  Future<Map<String, dynamic>> listLastMovimentacao({
+    required String accessToken,
+    required int branchID,
+  }) async {
+    final url = Uri.parse('$baseURL/dt/last/?branch_id=$branchID');
+
+    try {
+      // print(digitalTransfer.runtimeType);
+
+      // print(digitalTransfer.toJson());
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      print("STATUS: ${response.statusCode}");
+      print("DETAIL BODY: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        Map<String, dynamic> responseData = {
+          "transfer_id": data["transfer_id"],
+          "transfer_uuid": data["transfer_uuid"]
+        };
+
+        return responseData;
       }
     } catch (e) {
       print("Erro ao salvar movimentação: $e");
-      return 0;
+      return {"transfer_id": -1};
     }
 
-    return 0;
+    return {"transfer_id": -1};
   }
 
   Future<String> updateMovimentacaoItems({
     required String accessToken,
     required int transferID,
     required List<DigitalTransferItems> digitalItems,
+    required String model
   }) async {
-    final url = Uri.parse("$baseURL/dt/update/itens/$transferID");
+    final url = Uri.parse("$baseURL/dt/$model/update/itens/$transferID");
 
     try {
       final body = jsonEncode({
@@ -117,12 +158,22 @@ class DigitalTransferService {
     }
   }
 
-  Future<List<DigitalTransfer>?> listMovimentacoes({
+  Future<List<DigitalTransfer>?> listMovimentacoesToReceive({
     required String accessToken,
+    required int branchPDV,
+    int? transferID,
     int limit = 50,
     int offset = 0,
   }) async {
-    final url = Uri.parse('$baseURL/dt/?limit=$limit&offset=$offset');
+    String filter = "&branch_id=$branchPDV";
+
+    if (transferID != null) {
+      filter = "$filter&transfer_id=$transferID";
+    }
+
+    final url = Uri.parse(
+      '$baseURL/dt/receive?limit=$limit&offset=$offset$filter',
+    );
 
     try {
       final response = await http.get(
@@ -147,7 +198,7 @@ class DigitalTransferService {
       }
 
       if (response.statusCode == 401) {
-        AuthService().logout();
+        await AuthService().logout();
       }
 
       return null;
@@ -162,8 +213,9 @@ class DigitalTransferService {
     required String accessToken,
     required int transferID,
     required String status,
+    required String model
   }) async {
-    final url = Uri.parse('$baseURL/dt/update/status/$transferID');
+    final url = Uri.parse('$baseURL/dt/$model/update/status/$transferID');
 
     try {
       final response = await http.patch(
@@ -198,33 +250,32 @@ class DigitalTransferService {
     int? productCode,
     List<dynamic>? period,
   }) async {
-    String search_url = "branch_id=$branchPDV";
+    String searchUrl = "branch_pdv=$branchPDV";
 
     if (transferID != null) {
-      search_url = "$search_url&id_transf=$transferID";
+      searchUrl = "$searchUrl&id_transf=$transferID";
     }
 
     if (nfNumber != null) {
-      search_url = "$search_url&nf_number=$nfNumber";
+      searchUrl = "$searchUrl&nf_number=$nfNumber";
     }
 
     if (status != null) {
-      search_url = "$search_url&status_transfer=$status";
+      searchUrl = "$searchUrl&status_transfer=$status";
     }
 
     if (productCode != null) {
-      search_url = "$search_url&product_code=$productCode";
+      searchUrl = "$searchUrl&product_code=$productCode";
     }
 
     if (period != null) {
       String _inicio = DateFormat('yyyy-MM-dd').format(period[0]);
       String _final = DateFormat('yyyy-MM-dd').format(period[1]);
 
-      search_url =
-          "$search_url&transfer_period=$_inicio&transfer_period=$_final";
+      searchUrl = "$searchUrl&transfer_period=$_inicio&transfer_period=$_final";
     }
 
-    final url = Uri.parse('$baseURL/dt/search?$search_url');
+    final url = Uri.parse('$baseURL/dt/self/search?$searchUrl');
 
     try {
       final response = await http.get(

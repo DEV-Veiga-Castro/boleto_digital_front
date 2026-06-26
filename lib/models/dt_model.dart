@@ -31,6 +31,7 @@ class DigitalTransferItems {
 }
 
 class DigitalTransfer {
+  int? uuid;
   int? id;
   int? lojaOrigem;
   int? lojaDestino;
@@ -45,6 +46,7 @@ class DigitalTransfer {
   String? createdAt;
 
   DigitalTransfer({
+    this.uuid,
     this.id,
     required this.lojaOrigem,
     required this.lojaDestino,
@@ -55,11 +57,12 @@ class DigitalTransfer {
     this.comments,
     this.status,
     required this.items,
-    this.createdAt
+    this.createdAt,
   });
 
   factory DigitalTransfer.fromJson(Map<String, dynamic> json) =>
       DigitalTransfer(
+        uuid: json['uuid'] as int?,
         id: json['id'] as int?,
         lojaOrigem: json['loja_origem'] as int?,
         lojaDestino: json['loja_destino'] as int?,
@@ -72,10 +75,12 @@ class DigitalTransfer {
         items: (json['items'] as List<dynamic>? ?? [])
             .map((item) => DigitalTransferItems.fromJson(item))
             .toList(),
-        createdAt: json['created_at'] as String?
+        createdAt: json['created_at'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
+    'uuid': uuid,
+    'id': id,
     'loja_origem': lojaOrigem,
     'loja_destino': lojaDestino,
     'tipo_transferencia': tipoTransferencia,
@@ -85,7 +90,7 @@ class DigitalTransfer {
     'comments': comments,
     'status': status,
     'items': items.map(((e) => e.toJson())).toList(),
-    'created_at': createdAt
+    'created_at': createdAt,
   };
 }
 
@@ -94,19 +99,38 @@ class TransferProvider extends ChangeNotifier {
 
   DigitalTransfer? get transfer => _transfer;
 
-  Future<void> setTransfer(DigitalTransfer value, String accessToken) async {
+  void setReceiveTransfer(DigitalTransfer value) {
+    if (transfer != null) {
+      clear();
+      notifyListeners();
+    }
+
+    _transfer = value;
+
+    notifyListeners();
+  }
+
+  Future<void> setTransfer(
+    DigitalTransfer value,
+    String accessToken,
+    int branchID,
+  ) async {
     print("TRANFER ATUAL:: $transfer");
     if (transfer != null) return;
 
     _transfer = value;
 
-    final transferID = await DigitalTransferService().createMovimentacao(
+    final data = await DigitalTransferService().listLastMovimentacao(
       accessToken: accessToken,
-      digitalTransfer: _transfer!,
+      branchID: branchID,
     );
 
-    if (transferID != 0) {
-      value.id = transferID;
+    int _transferID = data["transfer_id"];
+    int _transferUUID = data["transfer_uuid"];
+
+    if (_transferUUID != -1) {
+      value.id = _transferID + 1;
+      value.uuid = _transferUUID + 1;
     }
 
     notifyListeners();
@@ -125,7 +149,7 @@ class TransferProvider extends ChangeNotifier {
     } else {
       _transfer!.items.add(
         DigitalTransferItems(
-          id: _transfer!.id,
+          id: _transfer!.uuid,
           productID: productID,
           quantitySent: 1,
           quantityReceived: 0,
@@ -134,6 +158,23 @@ class TransferProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  String addReceivedItem(int productID) {
+    if (_transfer == null) return "";
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      _transfer!.items[index].quantityReceived =
+          (_transfer!.items[index].quantityReceived ?? 0) + 1;
+    } else {
+      return "Produto não encontrado no envio!";
+    }
+
+    return "";
   }
 
   void subItem(int productID) {
@@ -146,6 +187,21 @@ class TransferProvider extends ChangeNotifier {
     if (index != -1) {
       _transfer!.items[index].quantitySent =
           (_transfer!.items[index].quantitySent ?? 0) - 1;
+    }
+
+    notifyListeners();
+  }
+
+  void subReceivedItem(int productID) {
+    if (_transfer == null) return;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      _transfer!.items[index].quantityReceived =
+          (_transfer!.items[index].quantityReceived ?? 0) - 1;
     }
 
     notifyListeners();
@@ -176,6 +232,20 @@ class TransferProvider extends ChangeNotifier {
 
     if (index != -1) {
       return _transfer!.items[index].quantitySent!;
+    }
+
+    return 0;
+  }
+
+  int getQuantityReceived(int productID) {
+    if (_transfer == null) return 0;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      return _transfer!.items[index].quantityReceived!;
     }
 
     return 0;
