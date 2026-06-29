@@ -1,3 +1,4 @@
+import 'package:boleto_digital/services/printer/print_bf.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +70,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       accessToken: accessToken!,
       transferID: transferID,
       status: "cancelada",
-      model: "send"
+      model: "send",
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -174,16 +175,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              IconButton(
-                                onPressed: () {
-                                  _showPopupModal(transferID: transfer.uuid!);
-                                },
-                                icon: Icon(
-                                  Icons.delete_outline_outlined,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
+                              Row(
+                                spacing: 12,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      await imprimirBoleto(
+                                        transferID: transfer.id,
+                                        transferUUID: transfer.uuid,
+                                        lojaOrigem: transfer.lojaOrigem,
+                                        lojaDestino: transfer.lojaDestino,
+                                        itens: transfer.items,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.print_outlined,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      _showPopupModal(transferID: transfer.uuid!);
+                                    },
+                                    icon: Icon(
+                                      Icons.delete_outline_outlined,
+                                      color: Colors.red,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              
                             ],
                           ),
                         ),
@@ -379,11 +402,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               final selectedDate = await _selectedDate();
-                
+
                               if (selectedDate != null) {
                                 if (selectedDate.isAfter(dataFinal!)) {
                                   Navigator.pop(context);
-                
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -397,9 +420,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   dataInicial = selectedDate;
                                 }
                               }
-                
+
                               await _refreshTransfer();
-                
+
                               setModalState(() {});
                             },
                             style: OutlinedButton.styleFrom(
@@ -447,11 +470,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               final selectedDate = await _selectedDate();
-                
+
                               if (selectedDate != null) {
                                 if (selectedDate.isBefore(dataInicial!)) {
                                   Navigator.pop(context);
-                
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -465,9 +488,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   dataFinal = selectedDate;
                                 }
                               }
-                
+
                               setModalState(() {});
-                
+
                               await _refreshTransfer();
                             },
                             style: OutlinedButton.styleFrom(
@@ -568,11 +591,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   onPressed: () {
                                     if (controller.isOpen) {
                                       controller.close();
-                
+
                                       setState(() {});
                                     } else {
                                       controller.open();
-                
+
                                       setState(() {});
                                     }
                                   },
@@ -671,7 +694,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ElevatedButton(
                         onPressed: () async {
                           await _refreshTransfer();
-                
+
                           Navigator.pop(context);
                         },
                         style: OutlinedButton.styleFrom(
@@ -1181,7 +1204,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         "${(DateTime.parse(item.createdAt!).hour - 3).toString().padLeft(2, '0')}:${DateTime.parse(item.createdAt!).minute.toString().padLeft(2, '0')}",
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 14
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ],

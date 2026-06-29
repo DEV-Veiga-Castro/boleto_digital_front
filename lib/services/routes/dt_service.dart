@@ -103,7 +103,7 @@ class DigitalTransferService {
 
         Map<String, dynamic> responseData = {
           "transfer_id": data["transfer_id"],
-          "transfer_uuid": data["transfer_uuid"]
+          "transfer_uuid": data["transfer_uuid"],
         };
 
         return responseData;
@@ -120,7 +120,7 @@ class DigitalTransferService {
     required String accessToken,
     required int transferID,
     required List<DigitalTransferItems> digitalItems,
-    required String model
+    required String model,
   }) async {
     final url = Uri.parse("$baseURL/dt/$model/update/itens/$transferID");
 
@@ -213,7 +213,7 @@ class DigitalTransferService {
     required String accessToken,
     required int transferID,
     required String status,
-    required String model
+    required String model,
   }) async {
     final url = Uri.parse('$baseURL/dt/$model/update/status/$transferID');
 
@@ -294,6 +294,8 @@ class DigitalTransferService {
         final history = (data as List)
             .map((item) => DigitalTransfer.fromJson(item))
             .toList();
+
+        history.reversed.toList();
 
         return history;
       } else {

@@ -1,10 +1,14 @@
+
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
+import 'package:boleto_digital/services/printer/print_bf.dart';
 import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:provider/provider.dart';
 
 class RevisionScreen extends StatefulWidget {
@@ -16,11 +20,64 @@ class RevisionScreen extends StatefulWidget {
 
 class _RevisionScreenState extends State<RevisionScreen> {
   final _storage = ClientStorage();
+  String? printerMacAddress;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  Future<bool> requestBluetooth() async {
+    if (await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.bluetoothScan.request().isGranted) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> printTicket() async {
+    bool bluetoothOn = await requestBluetooth();
+
+    if (!bluetoothOn) return;
+
+    List<BluetoothInfo> devices = await PrintBluetoothThermal.pairedBluetooths;
+
+    if (devices.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Nenhuma impressora encontrada!")));
+
+      return;
+    }
+
+    printerMacAddress = devices.first.macAdress;
+
+    bool connected = await PrintBluetoothThermal.connect(
+      macPrinterAddress: printerMacAddress!,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          connected
+              ? "Impressora conectada, iniciando impressão!"
+              : "Falha ao conectar!, Tente novamente.",
+        ),
+      ),
+    );
+
+    final provider = context.read<TransferProvider>().transfer!;
+
+    // Inicia a impressão da etiqueta do Boleto Digital
+    await imprimirBoleto(
+      transferID: provider.id,
+      transferUUID: provider.uuid,
+      lojaOrigem: provider.lojaOrigem,
+      lojaDestino: provider.lojaDestino,
+      itens: provider.items,
+    );
   }
 
   Future<void> createMovimentacao() async {
@@ -53,10 +110,13 @@ class _RevisionScreenState extends State<RevisionScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text("$response!")));
 
+      await printTicket();
+
       provider.clear();
-      
+
       Navigator.pushNamed(context, '/home');
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("$e --- $stackTrace");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("$e!")));

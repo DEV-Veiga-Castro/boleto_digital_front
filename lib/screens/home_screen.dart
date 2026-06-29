@@ -263,6 +263,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+              ListTile(
+                leading: Icon(Icons.print),
+                title: Text("Imprimir"),
+                onTap: () {
+                  Navigator.pushNamed(context, '/printing');
+                },
+              ),
               const Divider(),
               ListTile(
                 leading: Icon(Icons.logout),

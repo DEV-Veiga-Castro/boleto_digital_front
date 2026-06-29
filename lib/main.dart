@@ -6,6 +6,7 @@ import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/screens/history.dart';
 import 'package:boleto_digital/screens/home_screen.dart';
 import 'package:boleto_digital/screens/login_screen.dart';
+import 'package:boleto_digital/screens/printing.dart';
 import 'package:boleto_digital/screens/receive/initial.dart';
 import 'package:boleto_digital/screens/receive/insert.dart';
 import 'package:boleto_digital/screens/receive/list.dart';
@@ -79,6 +80,7 @@ class BoletoDigitalApp extends StatelessWidget {
         '/receive/initial':(context) => const InitialReceiveScreen(),
         '/receive/insert':(context) => const InsertReceiveScreen(),
         '/receive/revision': (context) => const RevisionReceiveScreen(),
+        '/printing':(context) => const ImpressaoPage()
       },
     );
   }
