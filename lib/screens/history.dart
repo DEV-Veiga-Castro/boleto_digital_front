@@ -354,6 +354,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     };
 
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
@@ -372,358 +373,363 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               child: SizedBox(
                 width: viewWidth! * 0.9,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "FILTRAGEM",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          Icon(
-                            Icons.filter_list_rounded,
-                            color: Colors.white,
-                            size: 25,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              final selectedDate = await _selectedDate();
-
-                              if (selectedDate != null) {
-                                if (selectedDate.isAfter(dataFinal!)) {
-                                  Navigator.pop(context);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "A Data Inicial não pode ser maior que a Data Final!",
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      backgroundColor: Colors.amber,
-                                    ),
-                                  );
-                                } else {
-                                  dataInicial = selectedDate;
-                                }
-                              }
-
-                              await _refreshTransfer();
-
-                              setModalState(() {});
-                            },
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.cinzaContainer,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 2,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                spacing: 12,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Data Inicial",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${dataInicial!.day.toString().length < 2 ? '0${dataInicial!.day}' : '${dataInicial!.day}'}/${dataInicial!.month.toString().length < 2 ? '0${dataInicial!.month}' : '${dataInicial!.month}'}/${dataInicial!.year}',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final selectedDate = await _selectedDate();
-
-                              if (selectedDate != null) {
-                                if (selectedDate.isBefore(dataInicial!)) {
-                                  Navigator.pop(context);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "A Data Final não pode ser menor que a Data Inicial!",
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      backgroundColor: Colors.amber,
-                                    ),
-                                  );
-                                } else {
-                                  dataFinal = selectedDate;
-                                }
-                              }
-
-                              setModalState(() {});
-
-                              await _refreshTransfer();
-                            },
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.cinzaContainer,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 2,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                spacing: 12,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Data Final",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${dataFinal!.day.toString().length < 2 ? '0${dataFinal!.day}' : '${dataFinal!.day}'}/${dataFinal!.month.toString().length < 2 ? '0${dataFinal!.month}' : '${dataFinal!.month}'}/${dataFinal!.year}',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        width: viewWidth * 0.78,
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              blurRadius: 2,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Status da Movimentação:",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  statusView ?? "",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            MenuAnchor(
-                              // alignmentOffset: Offset(dx, dy),
-                              style: MenuStyle(
-                                backgroundColor: WidgetStatePropertyAll(
-                                  Colors.white,
-                                ),
-                                elevation: WidgetStatePropertyAll(2),
-                                shadowColor: WidgetStatePropertyAll(
-                                  Colors.grey,
-                                ),
-                              ),
-                              builder: (context, controller, child) {
-                                return ElevatedButton(
-                                  onPressed: () {
-                                    if (controller.isOpen) {
-                                      controller.close();
-
-                                      setState(() {});
-                                    } else {
-                                      controller.open();
-
-                                      setState(() {});
-                                    }
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                  ),
-                                  child: Icon(
-                                    Icons.arrow_drop_down,
-                                    size: 30,
-                                    color: AppColors.verdeBoti,
-                                  ),
-                                );
-                              },
-                              menuChildren: statusList.entries.map((item) {
-                                return MenuItemButton(
-                                  onPressed: () {
-                                    setModalState(() {
-                                      status = item.key;
-                                      statusView = item.value;
-                                    });
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: Size(120, 60),
-                                  ),
-                                  child: Text(
-                                    item.value,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        width: viewWidth * 0.78,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              blurRadius: 2,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: codigoProduto,
-                          keyboardType: TextInputType.numberWithOptions(),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Código do Produto",
-                            hintStyle: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        width: viewWidth * 0.78,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              blurRadius: 2,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: numeroNF,
-                          keyboardType: TextInputType.numberWithOptions(),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Número da NF",
-                            hintStyle: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _refreshTransfer();
-
-                          Navigator.pop(context);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: AppColors.verdeBoti,
-                          shadowColor: Colors.white,
-                          maximumSize: Size(viewWidth * 0.78, 60),
-                        ),
-                        child: Row(
-                          spacing: 2,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "FILTRAR",
+                              "FILTRAGEM",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
                               ),
                             ),
                             Icon(
-                              Icons.arrow_right,
-                              size: 30,
+                              Icons.filter_list_rounded,
                               color: Colors.white,
+                              size: 25,
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                final selectedDate = await _selectedDate();
+                  
+                                if (selectedDate != null) {
+                                  if (selectedDate.isAfter(dataFinal!)) {
+                                    Navigator.pop(context);
+                  
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "A Data Inicial não pode ser maior que a Data Final!",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor: Colors.amber,
+                                      ),
+                                    );
+                                  } else {
+                                    dataInicial = selectedDate;
+                                  }
+                                }
+                  
+                                await _refreshTransfer();
+                  
+                                setModalState(() {});
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.cinzaContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      blurRadius: 2,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  spacing: 12,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Data Inicial",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${dataInicial!.day.toString().length < 2 ? '0${dataInicial!.day}' : '${dataInicial!.day}'}/${dataInicial!.month.toString().length < 2 ? '0${dataInicial!.month}' : '${dataInicial!.month}'}/${dataInicial!.year}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final selectedDate = await _selectedDate();
+                  
+                                if (selectedDate != null) {
+                                  if (selectedDate.isBefore(dataInicial!)) {
+                                    Navigator.pop(context);
+                  
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "A Data Final não pode ser menor que a Data Inicial!",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor: Colors.amber,
+                                      ),
+                                    );
+                                  } else {
+                                    dataFinal = selectedDate;
+                                  }
+                                }
+                  
+                                setModalState(() {});
+                  
+                                await _refreshTransfer();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.cinzaContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      blurRadius: 2,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  spacing: 12,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Data Final",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${dataFinal!.day.toString().length < 2 ? '0${dataFinal!.day}' : '${dataFinal!.day}'}/${dataFinal!.month.toString().length < 2 ? '0${dataFinal!.month}' : '${dataFinal!.month}'}/${dataFinal!.year}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          width: viewWidth * 0.78,
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.cinzaContainer,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Status da Movimentação:",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Text(
+                                    statusView ?? "",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              MenuAnchor(
+                                // alignmentOffset: Offset(dx, dy),
+                                style: MenuStyle(
+                                  backgroundColor: WidgetStatePropertyAll(
+                                    Colors.white,
+                                  ),
+                                  elevation: WidgetStatePropertyAll(2),
+                                  shadowColor: WidgetStatePropertyAll(
+                                    Colors.grey,
+                                  ),
+                                ),
+                                builder: (context, controller, child) {
+                                  return ElevatedButton(
+                                    onPressed: () {
+                                      if (controller.isOpen) {
+                                        controller.close();
+                  
+                                        setState(() {});
+                                      } else {
+                                        controller.open();
+                  
+                                        setState(() {});
+                                      }
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                    ),
+                                    child: Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 30,
+                                      color: AppColors.verdeBoti,
+                                    ),
+                                  );
+                                },
+                                menuChildren: statusList.entries.map((item) {
+                                  return MenuItemButton(
+                                    onPressed: () {
+                                      setModalState(() {
+                                        status = item.key;
+                                        statusView = item.value;
+                                      });
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: Size(120, 60),
+                                    ),
+                                    child: Text(
+                                      item.value,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          width: viewWidth * 0.78,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.cinzaContainer,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: codigoProduto,
+                            keyboardType: TextInputType.numberWithOptions(),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Código do Produto",
+                              hintStyle: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          width: viewWidth * 0.78,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.cinzaContainer,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: numeroNF,
+                            keyboardType: TextInputType.numberWithOptions(),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Número da NF",
+                              hintStyle: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await _refreshTransfer();
+                  
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: AppColors.verdeBoti,
+                            shadowColor: Colors.white,
+                            maximumSize: Size(viewWidth * 0.78, 60),
+                          ),
+                          child: Row(
+                            spacing: 2,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "FILTRAR",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -853,6 +859,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     };
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         elevation: 3,
         shadowColor: Colors.white.withAlpha(150),

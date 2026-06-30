@@ -51,7 +51,8 @@ class _InitialSendScreen extends State<InitialSendScreen> {
 
     if (transferProvider.transfer != null) {
       setState(() {
-        selectedMovimentacao = transferProvider.transfer?.tipoTransferencia ?? "";
+        selectedMovimentacao =
+            transferProvider.transfer?.tipoTransferencia ?? "";
         selectedLojaDestino = transferProvider.transfer?.lojaDestino ?? "";
         observacoesText.text = transferProvider.transfer?.comments ?? "";
       });
@@ -100,11 +101,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
       final provider = context.read<TransferProvider>();
       final user = context.read<UserProvider>().user;
 
-      await provider.setTransfer(
-        transfer,
-        accessToken!,
-        user!.actualBranch!,
-      );
+      await provider.setTransfer(transfer, accessToken!, user!.actualBranch!);
 
       // Provider.of(context, listen: false);
       // final provider = context.read<TransferProvider>();
@@ -315,6 +312,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 onPressed: () {
                                   setState(() {
                                     selectedMovimentacao = "REGULAR";
+                                    iconTipoMov = Icons.keyboard_arrow_down;
                                   });
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -332,6 +330,24 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 onPressed: () {
                                   setState(() {
                                     selectedMovimentacao = "BAIXA";
+                                    iconTipoMov = Icons.keyboard_arrow_down;
+                                    selectedLojaDestino = filiais
+                                        .where(
+                                          (e) =>
+                                              e.name!.startsWith("Esc") &&
+                                              e.state ==
+                                                  userProvider!.branch
+                                                      .where(
+                                                        (e) =>
+                                                            e.pdv ==
+                                                            userProvider
+                                                                .actualBranch,
+                                                      )
+                                                      .first
+                                                      .state,
+                                        )
+                                        .first
+                                        .pdv;
                                   });
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -349,6 +365,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 onPressed: () {
                                   setState(() {
                                     selectedMovimentacao = "VENDA";
+                                    iconTipoMov = Icons.keyboard_arrow_down;
                                   });
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -397,11 +414,16 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                   color: Colors.grey,
                                 ),
                               ),
-                              Text(
-                                "$selectedLojaDestino",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
+                              SizedBox(
+                                width: viewWidth * 0.59,
+                                child: Text(
+                                  "$selectedLojaDestino${selectedLojaDestino != "Selecionar unidade" ? " - ${filiais.where((e) => e.pdv == selectedLojaDestino).first.name}" : ""}",
+                                  softWrap: false,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                    overflow: TextOverflow.fade,
+                                  ),
                                 ),
                               ),
                             ],
@@ -418,16 +440,20 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                             builder: (context, controller, child) {
                               return ElevatedButton(
                                 onPressed: () {
-                                  if (controller.isOpen) {
-                                    setState(() {
-                                      controller.close();
-                                      iconLoja = Icons.store;
-                                    });
+                                  if (selectedMovimentacao == "BAIXA") {
+                                    null;
                                   } else {
-                                    setState(() {
-                                      controller.open();
-                                      iconLoja = Icons.storefront;
-                                    });
+                                    if (controller.isOpen) {
+                                      setState(() {
+                                        controller.close();
+                                        iconLoja = Icons.store;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        controller.open();
+                                        iconLoja = Icons.storefront;
+                                      });
+                                    }
                                   }
                                 },
                                 style: ButtonStyle(
@@ -448,7 +474,17 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                             menuChildren: filiais
                                 .where(
                                   (filial) =>
-                                      filial.pdv != userProvider!.actualBranch,
+                                      filial.pdv !=
+                                          userProvider!.actualBranch &&
+                                      filial.state ==
+                                          userProvider.branch
+                                              .where(
+                                                (e) =>
+                                                    e.pdv ==
+                                                    userProvider.actualBranch,
+                                              )
+                                              .first
+                                              .state,
                                 )
                                 .map((filial) {
                                   return MenuItemButton(
@@ -458,6 +494,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                       );
                                       setState(() {
                                         selectedLojaDestino = filial.pdv;
+                                        iconLoja = Icons.store;
                                       });
                                     },
                                     style: OutlinedButton.styleFrom(

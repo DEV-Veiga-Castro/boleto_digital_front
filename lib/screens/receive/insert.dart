@@ -1,6 +1,5 @@
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
-import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -16,7 +15,6 @@ class InsertReceiveScreen extends StatefulWidget {
 }
 
 class _InsertReceiveScreen extends State<InsertReceiveScreen> {
-  final _storage = ClientStorage();
   late FocusNode _focusTextField;
 
   TextEditingController productCode = TextEditingController();
@@ -52,9 +50,6 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
 
     final descriptionProvider = context.read<ProductProvider>();
-    final transferProvider = context.read<TransferProvider>();
-
-    int quantitySent = item.quantitySent!;
 
     showModalBottomSheet(
       context: context,

@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () {
-                            //TODO: Implementar login com Google
+                            //TODO: Implementar login com Microsoft
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
