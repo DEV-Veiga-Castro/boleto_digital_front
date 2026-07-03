@@ -190,6 +190,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_balloons:
+    dependency: "direct main"
+    description:
+      name: flutter_balloons
+      sha256: "586920900c41e9a247e5133220981607cd71d9e5a74855c64ce03f8d4ea46be5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:

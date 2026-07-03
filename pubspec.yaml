@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.20.2
   print_bluetooth_thermal: ^1.2.2
   esc_pos_utils_plus: ^2.0.4
+  flutter_balloons: ^1.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
