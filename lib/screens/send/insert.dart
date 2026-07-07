@@ -220,8 +220,14 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
     lastCode = "$productID";
 
-    final product = context.read<ProductProvider>().products;
-    final productIndex = product.indexWhere(
+    String? accessToken = await _storage.getAccessToken();
+
+    final product = await context.read<ProductProvider>().searchProduct(
+      token: accessToken,
+      product: productID.toString(),
+    );
+    
+    final productIndex = product!.indexWhere(
       (item) => item.codProduct == productID,
     );
 
@@ -469,9 +475,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                                   context,
                                 ).requestFocus(_focusTextField);
                               } else {
-
                                 insertItens(int.parse(productCode.text));
-                                
                               }
                             },
                             icon: Icon(

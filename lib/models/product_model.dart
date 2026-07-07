@@ -76,6 +76,22 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<ProductModel>?> searchProduct(
+    {
+      String? token, 
+      String? product
+    }) async {
+    if (_products.isEmpty) return Future.value(null);
+
+    final data = await _service.searchProduct(accessToken: token!, product: product!);
+
+    if (data != null && data.isNotEmpty) {
+      return data;
+    }
+
+    return Future.value(null);
+  }
+
   Future<void> loadProducts(String? token) async {
     final data = await _service.listProducts(accessToken: token!);
 
