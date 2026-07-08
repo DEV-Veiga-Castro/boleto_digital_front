@@ -1,6 +1,8 @@
 import 'package:boleto_digital/services/printer/print_bf.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:provider/provider.dart';
 
 import 'package:boleto_digital/models/dt_model.dart';
@@ -30,6 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   String? status;
   String? statusView;
+  String? macAddress;
 
   TextEditingController numeroNF = TextEditingController();
 
@@ -52,6 +55,63 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> conectarImpressora() async {
+    List<BluetoothInfo> devices = await PrintBluetoothThermal.pairedBluetooths;
+
+    if (devices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nenhuma impressora encontrada.")),
+      );
+      return;
+    }
+
+    // Escolhe a primeira impressora pareada
+    macAddress = devices.first.macAdress;
+
+    bool conectado = await PrintBluetoothThermal.connect(
+      macPrinterAddress: macAddress!,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(conectado ? "Impressora conectada" : "Falha ao conectar"),
+      ),
+    );
+  }
+
+  Future<bool> requestBluetooth() async {
+    if (await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.bluetoothScan.request().isGranted) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> imprimir({DigitalTransfer? transfer}) async {
+    bool isPermited = await requestBluetooth();
+
+    if (!isPermited) return;
+
+    if (macAddress == null) {
+      await conectarImpressora();
+    }
+
+    bool conectado = await PrintBluetoothThermal.connectionStatus;
+
+    if (!conectado) {
+      return;
+    }
+
+    imprimirBoleto(
+      transferID: transfer!.id,
+      transferUUID: transfer.uuid,
+      lojaOrigem: transfer.lojaOrigem,
+      lojaDestino: transfer.lojaDestino,
+      itens: transfer.items,
+    );
   }
 
   Future<void> _updateTransferStatus({required int transferID}) async {
@@ -180,12 +240,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 children: [
                                   IconButton(
                                     onPressed: () async {
-                                      await imprimirBoleto(
-                                        transferID: transfer.id,
-                                        transferUUID: transfer.uuid,
-                                        lojaOrigem: transfer.lojaOrigem,
-                                        lojaDestino: transfer.lojaDestino,
-                                        itens: transfer.items,
+                                      await imprimir(
+                                        transfer: transfer,
                                       );
                                     },
                                     icon: Icon(
@@ -196,7 +252,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   ),
                                   IconButton(
                                     onPressed: () {
-                                      _showPopupModal(transferID: transfer.uuid!);
+                                      _showPopupModal(
+                                        transferID: transfer.uuid!,
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.delete_outline_outlined,
@@ -206,7 +264,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   ),
                                 ],
                               ),
-                              
                             ],
                           ),
                         ),
@@ -407,11 +464,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ElevatedButton(
                               onPressed: () async {
                                 final selectedDate = await _selectedDate();
-                  
+
                                 if (selectedDate != null) {
                                   if (selectedDate.isAfter(dataFinal!)) {
                                     Navigator.pop(context);
-                  
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -425,9 +482,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     dataInicial = selectedDate;
                                   }
                                 }
-                  
+
                                 await _refreshTransfer();
-                  
+
                                 setModalState(() {});
                               },
                               style: OutlinedButton.styleFrom(
@@ -475,11 +532,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ElevatedButton(
                               onPressed: () async {
                                 final selectedDate = await _selectedDate();
-                  
+
                                 if (selectedDate != null) {
                                   if (selectedDate.isBefore(dataInicial!)) {
                                     Navigator.pop(context);
-                  
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -493,9 +550,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     dataFinal = selectedDate;
                                   }
                                 }
-                  
+
                                 setModalState(() {});
-                  
+
                                 await _refreshTransfer();
                               },
                               style: OutlinedButton.styleFrom(
@@ -596,11 +653,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     onPressed: () {
                                       if (controller.isOpen) {
                                         controller.close();
-                  
+
                                         setState(() {});
                                       } else {
                                         controller.open();
-                  
+
                                         setState(() {});
                                       }
                                     },
@@ -699,7 +756,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ElevatedButton(
                           onPressed: () async {
                             await _refreshTransfer();
-                  
+
                             Navigator.pop(context);
                           },
                           style: OutlinedButton.styleFrom(

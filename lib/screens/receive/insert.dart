@@ -76,6 +76,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
+                        spacing: 12,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -105,13 +106,18 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                                   fontSize: 14,
                                 ),
                               ),
-                              Text(
-                                descriptionProvider.getDescription(
-                                  item.productID!,
-                                ),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                child: Text(
+                                  descriptionProvider.getDescription(
+                                    item.productID!,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
                             ],
@@ -120,7 +126,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          transferProvider.removeItem(item.productID!);
+                          transferProvider.clearReceivedItem(item.productID!);
                           Navigator.pop(context);
 
                           setState(() {});
@@ -176,6 +182,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                           transferProvider.addReceivedItem(item.productID!);
 
                           setState(() {});
+                          
                         },
                         icon: Icon(Icons.exposure_plus_1_rounded),
                       ),

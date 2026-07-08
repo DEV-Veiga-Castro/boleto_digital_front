@@ -134,7 +134,7 @@ Future<void> imprimirBoleto(
   bytes += generator.hr(ch: '=', linesAfter: 2);
 
   // QR Code
-  bytes += generator.qrcode("$transferUUID", size: QRSize.size8);
+  bytes += generator.qrcode("$transferID", size: QRSize.size8);
 
   bytes += generator.feed(2);
 

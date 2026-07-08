@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_balloons/widgets/balloon.dart';
 import 'package:flutter_balloons/widgets/balloon_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       debugPrint("PDV SELECIONADO: $_selectedBranch");
-
 
       setState(() {});
 
@@ -280,6 +280,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, '/printing');
                 },
               ),
+              ListTile(
+                leading: Icon(Icons.system_update),
+                title: Text("Atualizações"),
+                onTap: () async {
+                  final url = Uri.parse("https://api.veigacastro.dev.br/app");
+
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    throw 'Não foi possível abrir o link: $url';
+                  }
+                },
+              ),
               const Divider(),
               ListTile(
                 leading: Icon(Icons.logout),
@@ -390,7 +403,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: viewHeight * 0.9),
+                        constraints: BoxConstraints(
+                          minHeight: viewHeight * 0.9,
+                        ),
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -421,7 +436,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.verdeBoti.withAlpha(200),
+                                          color: AppColors.verdeBoti.withAlpha(
+                                            200,
+                                          ),
                                           blurRadius: 4,
                                           offset: Offset(0, 4),
                                         ),
@@ -470,7 +487,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(height: 30),
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, '/receive/list');
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/receive/list',
+                                    );
                                   },
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
@@ -484,7 +504,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.verdeBoti.withAlpha(200),
+                                          color: AppColors.verdeBoti.withAlpha(
+                                            200,
+                                          ),
                                           blurRadius: 4,
                                           offset: Offset(0, 4),
                                         ),
@@ -532,7 +554,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 SizedBox(height: 30),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Container(
                                       width: viewWidth * 0.35,
@@ -542,9 +565,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColors.verdeBoti.withAlpha(
-                                              200,
-                                            ),
+                                            color: AppColors.verdeBoti
+                                                .withAlpha(200),
                                             blurRadius: 4,
                                             offset: Offset(0, 4),
                                           ),
@@ -587,9 +609,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColors.verdeBoti.withAlpha(
-                                              200,
-                                            ),
+                                            color: AppColors.verdeBoti
+                                                .withAlpha(200),
                                             blurRadius: 4,
                                             offset: Offset(0, 4),
                                           ),
@@ -650,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BalloonOverlay(
                 totalBalloons: 30,
                 spawnInterval: Duration(milliseconds: 500),
-              )
+              ),
           ],
         ),
       ),

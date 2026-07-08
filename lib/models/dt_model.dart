@@ -38,7 +38,7 @@ class DigitalTransfer {
   String? tipoTransferencia;
   int? sendedBy;
   int? receivedBy;
-  String? nfNumber;
+  int? nfNumber;
   String? comments;
   String? status;
   // List<Map<String, dynamic>> items;
@@ -69,7 +69,7 @@ class DigitalTransfer {
         tipoTransferencia: json['tipo_transferencia'] as String?,
         sendedBy: json['sended_by'] as int?,
         receivedBy: json['received_by'] as int?,
-        nfNumber: json['nf_number'] as String?,
+        nfNumber: json['nf_number'] as int?,
         comments: json['comments'] as String?,
         status: json['status'] as String? ?? "em_andamento",
         items: (json['items'] as List<dynamic>? ?? [])
@@ -170,6 +170,9 @@ class TransferProvider extends ChangeNotifier {
     if (index != -1) {
       _transfer!.items[index].quantityReceived =
           (_transfer!.items[index].quantityReceived ?? 0) + 1;
+        
+      notifyListeners();
+
     } else {
       return "Produto não encontrado no envio!";
     }
@@ -262,6 +265,20 @@ class TransferProvider extends ChangeNotifier {
     }
 
     return total;
+  }
+
+  void clearReceivedItem(int productID) {
+    if (_transfer == null) return;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index != -1) {
+      _transfer!.items[index].quantityReceived = 0;
+    }
+
+    notifyListeners();
   }
 
   void clear() {

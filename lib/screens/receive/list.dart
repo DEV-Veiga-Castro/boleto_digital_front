@@ -109,11 +109,14 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
 
                   if (barcode == null) return;
 
-                  await scannerController.stop();
-
                   selectedItemID = int.tryParse(barcode);
 
+
+                  print("ID DA MOVIMENTAÇÃO : $selectedItemID");
+
                   await listMovimentacoes();
+                  
+                  await scannerController.stop();
 
                   Navigator.pop(context);
                 },

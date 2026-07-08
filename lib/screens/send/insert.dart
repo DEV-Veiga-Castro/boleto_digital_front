@@ -79,6 +79,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
+                        spacing: 12,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -100,21 +101,29 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                             ],
                           ),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 "DESCRIÇÃO: ",
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
                                 ),
                               ),
-                              Text(
-                                descriptionProvider.getDescription(
-                                  item.productID!,
-                                ),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                child: Text(
+                                  descriptionProvider.getDescription(
+                                    item.productID!,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
                             ],
