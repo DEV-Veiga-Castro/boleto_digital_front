@@ -179,10 +179,10 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          transferProvider.addReceivedItem(item.productID!);
+                          // transferProvider.addReceivedItem(item.productID!);
 
-                          setState(() {});
-                          
+                          // setState(() {});
+                          null;
                         },
                         icon: Icon(Icons.exposure_plus_1_rounded),
                       ),

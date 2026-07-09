@@ -218,6 +218,19 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       return;
     }
 
+    if (productID.toString().contains('.') || productID.toString().contains(',')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Código inválido, não foi possível adicionar!",
+            style: TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Colors.amber[200],
+        ),
+      );
+      return;
+    }
+
     if (productID.toString().length > 5) {
       productID = int.parse(
         productID.toString().substring(
@@ -236,9 +249,13 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       product: productID.toString(),
     );
     
-    final productIndex = product!.indexWhere(
-      (item) => item.codProduct == productID,
-    );
+    int productIndex = -1;
+
+    if (product != null) {
+        productIndex = product.indexWhere(
+        (item) => item.codProduct == productID,
+      );
+    }
 
     if (productIndex != -1) {
       context.read<TransferProvider>().addItem(productID);
@@ -484,6 +501,20 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                                   context,
                                 ).requestFocus(_focusTextField);
                               } else {
+                                if (productCode.text.contains('.') ||
+                                    productCode.text.contains(',')) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Código inválido, não foi possível adicionar!",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      backgroundColor: Colors.amber[200],
+                                    ),
+                                  );
+                                  return;
+                                }
+                                
                                 insertItens(int.parse(productCode.text));
                               }
                             },

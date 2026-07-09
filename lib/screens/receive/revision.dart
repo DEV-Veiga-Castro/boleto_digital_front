@@ -98,6 +98,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
+              SizedBox(width: 30,),
               TextButton(
                 onPressed: () async {
                   await updateTranfer();
@@ -419,7 +420,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 ),
                               ),
                               Text(
-                                "${transferProvider.getTotalQuantitySent()} Itens",
+                                "${transferProvider.getTotalQuantityReceived()} Itens",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,

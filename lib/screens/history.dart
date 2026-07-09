@@ -1,3 +1,4 @@
+import 'package:boleto_digital/models/branch_model.dart';
 import 'package:boleto_digital/services/printer/print_bf.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -202,6 +203,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     DigitalTransfer transfer,
   ) async {
     final productProvider = context.read<ProductProvider>();
+    final filiais = context.watch<BranchProvider>().branches;
 
     showModalBottomSheet(
       context: context,
@@ -240,9 +242,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 children: [
                                   IconButton(
                                     onPressed: () async {
-                                      await imprimir(
-                                        transfer: transfer,
-                                      );
+                                      await imprimir(transfer: transfer);
                                     },
                                     icon: Icon(
                                       Icons.print_outlined,
@@ -287,7 +287,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                   ),
                                   Text(
-                                    "${transfer.lojaDestino}",
+                                    "${transfer.lojaDestino} - ${filiais.firstWhere(
+                                      (e) => e.pdv == transfer.lojaDestino,
+                                      orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                    ).name}",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -863,36 +866,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _preLoadTransfers() async {
     if (!mounted) return;
 
-    final history = context.read<TransferHistoryProvider>().transfers;
+    final provider = context.read<TransferHistoryProvider>();
 
-    if (history.isEmpty) {
-      final provider = context.read<TransferHistoryProvider>();
+    bool hasAT = await _storage.isAccessTokenValid();
 
-      bool hasAT = await _storage.isAccessTokenValid();
+    if (!hasAT) {
+      AuthService().logout();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Sessão expirada, faça login novamente!")),
+      );
 
-      if (!hasAT) {
-        AuthService().logout();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Sessão expirada, faça login novamente!"),
-          ),
-        );
-
-        setState(() {});
-
-        return;
-      }
-
-      String? accessToken = await _storage.getAccessToken();
-      User? user = context.read<UserProvider>().user;
-
-      await provider.getHistory(accessToken!, user!.actualBranch!, [
-        dataInicial,
-        dataFinal,
-      ]);
+      Navigator.canPop(context) ? Navigator.pop(context) : null;
 
       setState(() {});
+
+      return;
     }
+
+    String? accessToken = await _storage.getAccessToken();
+    User? user = context.read<UserProvider>().user;
+
+    await provider.getHistory(accessToken!, user!.actualBranch!, [
+      dataInicial,
+      dataFinal,
+    ]);
+
+    setState(() {});
   }
 
   @override
@@ -903,6 +902,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     Intl.defaultLocale = 'pt_BR';
 
     final history = context.read<TransferHistoryProvider>().transfers;
+    final filiais = context.watch<BranchProvider>().branches;
 
     final itens = history;
 
@@ -913,6 +913,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
         size: 30,
       ),
       "cancelada": Icon(Icons.cancel_sharp, color: Colors.red, size: 30),
+      "conferida": Icon(
+        Icons.check_circle_outline_rounded,
+        color: Colors.blue,
+        size: 30,
+      ),
+      "nf_lancada": Icon(
+        Icons.description_outlined,
+        color: Colors.orange,
+        size: 30,
+      ),
     };
 
     return Scaffold(
@@ -1242,7 +1252,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
-                                    spacing: 8,
+                                    spacing: 12,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -1254,11 +1264,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      Text(
-                                        "Loja Destino: ${item.lojaDestino}",
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 14,
+                                      SizedBox(
+                                        width: viewWidth * 0.5,
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Text(
+                                            "Loja Destino: ${item.lojaDestino} - ${filiais.firstWhere(
+                                              (e) => e.pdv == item.lojaDestino,
+                                              orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                            ).name}",
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       Text(

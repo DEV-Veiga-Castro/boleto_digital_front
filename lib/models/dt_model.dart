@@ -170,9 +170,8 @@ class TransferProvider extends ChangeNotifier {
     if (index != -1) {
       _transfer!.items[index].quantityReceived =
           (_transfer!.items[index].quantityReceived ?? 0) + 1;
-        
-      notifyListeners();
 
+      notifyListeners();
     } else {
       return "Produto não encontrado no envio!";
     }
@@ -203,8 +202,11 @@ class TransferProvider extends ChangeNotifier {
     );
 
     if (index != -1) {
-      _transfer!.items[index].quantityReceived =
-          (_transfer!.items[index].quantityReceived ?? 0) - 1;
+      int quantityReceived = _transfer!.items[index].quantityReceived ?? 0;
+      
+      if(quantityReceived > 0) {
+        _transfer!.items[index].quantityReceived = quantityReceived - 1;
+      }
     }
 
     notifyListeners();
@@ -262,6 +264,19 @@ class TransferProvider extends ChangeNotifier {
 
     for (int i = 0; i < length; i++) {
       total += _transfer!.items[i].quantitySent!;
+    }
+
+    return total;
+  }
+
+  int getTotalQuantityReceived() {
+    if (_transfer == null) return 0;
+
+    int total = 0;
+    final length = _transfer!.items.length;
+
+    for (int i = 0; i < length; i++) {
+      total += _transfer!.items[i].quantityReceived!;
     }
 
     return total;

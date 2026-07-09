@@ -1,3 +1,4 @@
+import 'package:boleto_digital/models/branch_model.dart';
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/screens/home_screen.dart';
@@ -27,7 +28,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
 
   String selectedUsuario = '';
 
-  TextEditingController observacoesText = TextEditingController();
+  String observacoesText = '';
 
   // Essa função executa tudo que estiver dentro dela antes mesmo da tela carregar
   @override
@@ -51,7 +52,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
         selectedMovimentacao =
             transferProvider.transfer?.tipoTransferencia ?? "";
         selectedLojaOrigem = transferProvider.transfer?.lojaOrigem ?? "";
-        observacoesText.text = transferProvider.transfer?.comments ?? "";
+        observacoesText = transferProvider.transfer?.comments ?? "";
       });
     } else {
       selectedMovimentacao = "REGULAR";
@@ -74,6 +75,8 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
   Widget build(BuildContext context) {
     final viewHeight = MediaQuery.of(context).size.height;
     final viewWidth = MediaQuery.of(context).size.width;
+
+    final filiais = context.watch<BranchProvider>().branches;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
@@ -240,7 +243,10 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "$selectedLojaOrigem",
+                                  "$selectedLojaOrigem | ${filiais.firstWhere(
+                                    (e) => e.pdv == selectedLojaOrigem,
+                                    orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                  ).name}",
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.white,
@@ -282,7 +288,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "RESPONSÁVEL PELO ENVIO",
+                                  "RESPONSÁVEL PELO RECEBIMENTO",
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 12,
@@ -345,13 +351,25 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                             ),
                             TextField(
                               maxLines: 5,
+                              enabled: false,
                               // expands: true,
                               decoration: InputDecoration(
-                                hint: Text(
-                                  "ID - $transferID | $itemTransferID | ${observacoesText.text}",
-                                  style: TextStyle(
-                                    color: Colors.grey.withAlpha(150),
-                                  ),
+                                hint: Row(
+                                  children: [
+                                    Text(
+                                      "ID - $transferID | $itemTransferID | ",
+                                      style: TextStyle(
+                                        color: Colors.grey.withAlpha(150),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${observacoesText.isNotEmpty ? observacoesText.capitalize() : "Sem observações"}",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18
+                                      ),
+                                    )
+                                  ],
                                 ),
                                 border: InputBorder.none,
                               ),

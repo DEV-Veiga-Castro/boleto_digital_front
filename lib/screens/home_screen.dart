@@ -178,6 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final viewHeight = MediaQuery.of(context).size.height;
     final viewWidth = MediaQuery.of(context).size.width;
 
+    final filiais = context.watch<BranchProvider>().branches;
+
     return SafeArea(
       key: _scaffoldKey,
       child: Scaffold(
@@ -204,10 +206,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppColors.verdeBoti,
                         size: 30,
                       ),
-                      title: Text(
-                        "$_selectedBranch | ",
-                        maxLines: 1,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      title: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Text(
+                          "$_selectedBranch | ${filiais.firstWhere(
+                            (e) => e.pdv == _selectedBranch,
+                            orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                          ).name}",
+                          maxLines: 1,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                       titleAlignment: ListTileTitleAlignment.center,
                       trailing: MenuAnchor(
@@ -286,10 +294,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () async {
                   final url = Uri.parse("https://api.veigacastro.dev.br/app");
 
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  } else {
-                    throw 'Não foi possível abrir o link: $url';
+                  if (!await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    throw Exception("Não foi possível abrir o link: $url");
                   }
                 },
               ),

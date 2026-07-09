@@ -162,6 +162,7 @@ class DigitalTransferService {
     required String accessToken,
     required int branchPDV,
     int? transferID,
+    int? transferUUID,
     int limit = 50,
     int offset = 0,
   }) async {
@@ -169,6 +170,10 @@ class DigitalTransferService {
 
     if (transferID != null) {
       filter = "$filter&transfer_id=$transferID";
+    }
+
+    if(transferUUID != null) {
+      filter = "$filter&transfer_uuid=$transferUUID";
     }
 
     final url = Uri.parse(

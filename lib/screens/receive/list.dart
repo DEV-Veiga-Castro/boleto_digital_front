@@ -1,3 +1,4 @@
+import 'package:boleto_digital/models/branch_model.dart';
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
@@ -21,6 +22,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
   final _storage = ClientStorage();
   Color containerShadow = Colors.transparent;
   int? selectedItemID;
+  int? selectedItemUUID;
   User? _user;
 
   final MobileScannerController scannerController = MobileScannerController(
@@ -54,6 +56,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
       accessToken: accessToken!,
       branchPDV: user!.actualBranch!,
       transferID: selectedItemID,
+      transferUUID: selectedItemUUID,
     );
 
     if (dtService != null) {
@@ -109,13 +112,12 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
 
                   if (barcode == null) return;
 
-                  selectedItemID = int.tryParse(barcode);
+                  selectedItemUUID = int.tryParse(barcode);
 
-
-                  print("ID DA MOVIMENTAÇÃO : $selectedItemID");
+                  print("UUID DA MOVIMENTAÇÃO : $selectedItemUUID");
 
                   await listMovimentacoes();
-                  
+
                   await scannerController.stop();
 
                   Navigator.pop(context);
@@ -132,7 +134,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
     try {
       User? userProfile = _storage.user;
 
-      if (selectedItemID == null || itens.isEmpty) {
+      if (selectedItemUUID == null || itens.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Por favor, selecione uma movimentação!")),
         );
@@ -140,8 +142,12 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
         return;
       }
 
-      if (selectedItemID != null) {
-        itens = [itens[itens.indexWhere((e) => e.id == selectedItemID)]];
+      // if (selectedItemID != null) {
+      //   itens = [itens[itens.indexWhere((e) => e.id == selectedItemID)]];
+      // }
+
+      if (selectedItemUUID != null) {
+        itens = [itens[itens.indexWhere((e) => e.uuid == selectedItemUUID)]];
       }
 
       if (userProfile != null) {
@@ -156,6 +162,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
         lojaOrigem: itens.first.lojaOrigem,
         lojaDestino: itens.first.lojaDestino,
         tipoTransferencia: itens.first.tipoTransferencia,
+        comments: itens.first.comments,
         sendedBy: itens.first.sendedBy,
         items: itens.first.items,
       );
@@ -168,7 +175,8 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
         Navigator.pushNamed(context, '/receive/initial');
 
         setState(() {
-          selectedItemID = null;
+          // selectedItemID = null;
+          selectedItemUUID = null;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -212,6 +220,8 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
     Intl.defaultLocale = 'pt_BR';
     final viewHeight = MediaQuery.of(context).size.height;
     final viewWidth = MediaQuery.of(context).size.width;
+
+    final filiais = context.watch<BranchProvider>().branches;
 
     return Scaffold(
       appBar: AppBar(
@@ -350,12 +360,12 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                   SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final item = itens[index];
-                      bool isSelected = selectedItemID == item.id;
+                      bool isSelected = selectedItemUUID == item.uuid;
 
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedItemID = item.id;
+                            selectedItemUUID = item.uuid;
                           });
                         },
                         child: Container(
@@ -387,7 +397,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
-                                  spacing: 8,
+                                  spacing: 12,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -398,11 +408,22 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    Text(
-                                      "Loja Origem: ${item.lojaOrigem}",
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
+                                    SizedBox(
+                                      width: viewWidth * 0.5,
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Text(
+                                          "Loja Origem: ${item.lojaOrigem} - ${filiais.firstWhere(
+                                            (e) => e.pdv == item.lojaOrigem,
+                                            orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                          ).name}",
+                                          maxLines: 1,
+                                          overflow: TextOverflow.fade,
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     Text(
@@ -464,7 +485,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (selectedItemID != null || itens.length == 1) {
+                if (selectedItemUUID != null || itens.length == 1) {
                   await setMovimentacao();
 
                   await listMovimentacoes();
