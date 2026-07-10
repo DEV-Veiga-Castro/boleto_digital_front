@@ -1,4 +1,3 @@
-
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
@@ -21,6 +20,8 @@ class RevisionScreen extends StatefulWidget {
 class _RevisionScreenState extends State<RevisionScreen> {
   final _storage = ClientStorage();
   String? printerMacAddress;
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -133,6 +134,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
 
     final transfer = transferProvider.transfer;
     final itens = transfer?.items ?? [];
+
 
     return Scaffold(
       appBar: AppBar(
@@ -479,14 +481,26 @@ class _RevisionScreenState extends State<RevisionScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () async {
-                await createMovimentacao();
+              onPressed: _isLoading ? null : () async {
+                setState(() {
+                  _isLoading = true;
+                });
+
+                try {
+                  await createMovimentacao();
+                } finally {
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                }
               },
               style: OutlinedButton.styleFrom(
                 backgroundColor: AppColors.verdeBoti,
                 minimumSize: Size(viewWidth * 0.8, 40),
               ),
-              child: Row(
+              child: _isLoading ? CircularProgressIndicator(strokeWidth: 2, color: AppColors.roxoEudora,) : Row(
                 children: [
                   Text(
                     "CONFIRMAR",
