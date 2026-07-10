@@ -135,11 +135,14 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(response)));
 
+      bool hasDiscrepancies = await verifyDiscrepancy(); 
+
       response = await DigitalTransferService().updateTransferStatus(
         accessToken: accessToken,
         transferID: provider.transfer!.uuid!,
         status: 'conferida',
-        model: 'receive'
+        model: 'receive',
+        hasDiscrepancies: hasDiscrepancies
       );
 
       ScaffoldMessenger.of(

@@ -219,6 +219,7 @@ class DigitalTransferService {
     required int transferID,
     required String status,
     required String model,
+    bool? hasDiscrepancies
   }) async {
     final url = Uri.parse('$baseURL/dt/$model/update/status/$transferID');
 
@@ -229,7 +230,10 @@ class DigitalTransferService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
         },
-        body: jsonEncode({"status": status}),
+        body: jsonEncode({
+          "status": status,
+          "has_discrepancies": hasDiscrepancies
+        }),
       );
 
       print("BODY:: ${response.body}");
