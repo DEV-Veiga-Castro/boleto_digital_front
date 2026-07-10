@@ -918,7 +918,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         color: Colors.blue,
         size: 30,
       ),
-      "nf_lancada": Icon(
+      "finalizada": Icon(
         Icons.description_outlined,
         color: Colors.orange,
         size: 30,
