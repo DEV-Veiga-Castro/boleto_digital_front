@@ -292,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: Icon(Icons.system_update),
                 title: Text("Atualizações"),
                 onTap: () async {
-                  final url = Uri.parse("https://api.veigacastro.dev.br/app");
+                  final url = Uri.parse("https://erp-apk.cvumn9.easypanel.host/app-latest.apk");
 
                   if (!await launchUrl(
                     url,
