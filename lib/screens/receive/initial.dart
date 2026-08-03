@@ -242,14 +242,19 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                     color: Colors.grey,
                                   ),
                                 ),
-                                Text(
-                                  "$selectedLojaOrigem | ${filiais.firstWhere(
-                                    (e) => e.pdv == selectedLojaOrigem,
-                                    orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
-                                  ).name}",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
+                                SizedBox(
+                                  width: viewWidth * 0.59,
+                                  child: Text(
+                                    "$selectedLojaOrigem | ${filiais.firstWhere(
+                                      (e) => e.pdv == selectedLojaOrigem,
+                                      orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                    ).name}",
+                                    softWrap: false,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      overflow: TextOverflow.fade
+                                    ),
                                   ),
                                 ),
                               ],
