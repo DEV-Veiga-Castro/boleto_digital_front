@@ -213,7 +213,11 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
       return;
     }
 
-    if (productID.toString().length > 5) {
+    if (productID.toString().length == 8) {
+      productID = int.parse(productID.toString());
+    }
+    
+    else if (productID.toString().length > 5) {
       productID = int.parse(
         productID.toString().substring(
           productID.toString().length - 6,

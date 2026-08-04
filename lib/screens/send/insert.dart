@@ -218,7 +218,8 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       return;
     }
 
-    if (productID.toString().contains('.') || productID.toString().contains(',')) {
+    if (productID.toString().contains('.') ||
+        productID.toString().contains(',')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -231,7 +232,11 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       return;
     }
 
-    if (productID.toString().length > 5) {
+    if (productID.toString().length == 8) {
+      productID = int.parse(productID.toString());
+    }
+    
+    else if (productID.toString().length > 5) {
       productID = int.parse(
         productID.toString().substring(
           productID.toString().length - 6,
@@ -248,13 +253,11 @@ class _InsertSendScreen extends State<InsertSendScreen> {
       token: accessToken,
       product: productID.toString(),
     );
-    
+
     int productIndex = -1;
 
     if (product != null) {
-        productIndex = product.indexWhere(
-        (item) => item.codProduct == productID,
-      );
+      productIndex = product.indexWhere((item) => item.codProduct == productID);
     }
 
     if (productIndex != -1) {
@@ -514,7 +517,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                                   );
                                   return;
                                 }
-                                
+
                                 insertItens(int.parse(productCode.text));
                               }
                             },
