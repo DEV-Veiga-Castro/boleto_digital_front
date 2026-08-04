@@ -22,7 +22,7 @@ echo "APK Gerado:"
 echo "$OUTPUT/app-v${VERSION}.apk"
 
 echo "Enviando para o Storage..."
-scp "$OUTPUT/app-v${VERSION}.apk" "$DESTINO"
+scp -0 "$OUTPUT/app-v${VERSION}.apk" "$DESTINO"
 
 echo "Atualizando a versão latest no servidor..."
 ssh "$USER@$HOST" << EOF
