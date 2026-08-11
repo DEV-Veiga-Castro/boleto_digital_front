@@ -215,9 +215,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
 
     if (productID.toString().length == 8) {
       productID = int.parse(productID.toString());
-    }
-    
-    else if (productID.toString().length > 5) {
+    } else if (productID.toString().length > 5) {
       productID = int.parse(
         productID.toString().substring(
           productID.toString().length - 6,
@@ -228,21 +226,15 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
 
     lastCode = "$productID";
 
-    String? accessToken = await _storage.getAccessToken();
+    final transferProvider = context.read<TransferProvider>();
 
-    final product = await context.read<ProductProvider>().searchProduct(
-      token: accessToken,
-      product: productID.toString(),
+    final itemIndex = transferProvider.transfer?.items.indexWhere(
+      (item) => item.productID == productID
     );
 
-    final productIndex = product!.indexWhere(
-      (item) => item.codProduct == productID,
-    );
+    if (itemIndex != -1) {
 
-    if (productIndex != -1) {
-      final provider = context.read<TransferProvider>();
-
-      String response = provider.addReceivedItem(productID);
+      String response = transferProvider.addReceivedItem(productID);
 
       if (response != "") {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -256,7 +248,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "Produto não cadastrado: $productID",
+            "Produto não consta na movimentação: $productID",
             style: TextStyle(color: Colors.black),
           ),
           backgroundColor: Colors.amber[200],
