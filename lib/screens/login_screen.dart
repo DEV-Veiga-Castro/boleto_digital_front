@@ -186,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: viewWidth * 0.8,
                       child: TextField(
                         controller: _loginController,
+                        autofillHints: const [AutofillHints.username],
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -213,6 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: viewWidth * 0.8,
                       child: TextField(
                         controller: _passwordController,
+                        autofillHints: const [AutofillHints.password],
                         obscureText: true,
                         style: const TextStyle(
                           color: Colors.black,

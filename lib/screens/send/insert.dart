@@ -234,9 +234,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
     if (productID.toString().length == 8) {
       productID = int.parse(productID.toString());
-    }
-    
-    else if (productID.toString().length > 5) {
+    } else if (productID.toString().length > 5) {
       productID = int.parse(
         productID.toString().substring(
           productID.toString().length - 6,
@@ -249,15 +247,25 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
     String? accessToken = await _storage.getAccessToken();
 
-    final product = await context.read<ProductProvider>().searchProduct(
-      token: accessToken,
-      product: productID.toString(),
+    final transferProvider = context.read<TransferProvider>();
+
+    int? productIndex = -1;
+
+    productIndex = transferProvider.transfer?.items.indexWhere(
+      (item) => item.productID == productID,
     );
 
-    int productIndex = -1;
+    if (productIndex == -1) {
+      final product = await context.read<ProductProvider>().searchProduct(
+        token: accessToken,
+        product: productID.toString(),
+      );
 
-    if (product != null) {
-      productIndex = product.indexWhere((item) => item.codProduct == productID);
+      if (product != null) {
+        productIndex = product.indexWhere(
+          (item) => item.codProduct == productID,
+        );
+      }
     }
 
     if (productIndex != -1) {

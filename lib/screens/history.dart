@@ -909,7 +909,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final containersIcons = {
       "em_andamento": Icon(
         Icons.hourglass_empty_rounded,
-        color: AppColors.verdeBoti,
+        color: Colors.orange,
         size: 30,
       ),
       "cancelada": Icon(Icons.cancel_sharp, color: Colors.red, size: 30),
@@ -920,7 +920,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       "finalizada": Icon(
         Icons.description_outlined,
-        color: Colors.orange,
+        color: AppColors.verdeBoti,
         size: 30,
       ),
     };
