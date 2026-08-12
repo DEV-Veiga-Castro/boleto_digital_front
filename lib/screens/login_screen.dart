@@ -2,6 +2,7 @@ import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {

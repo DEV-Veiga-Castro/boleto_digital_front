@@ -918,7 +918,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         color: Colors.blue,
         size: 30,
       ),
-      "finalizada": Icon(
+      "concluida": Icon(
         Icons.description_outlined,
         color: AppColors.verdeBoti,
         size: 30,
