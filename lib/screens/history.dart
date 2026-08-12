@@ -286,14 +286,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       fontSize: 14,
                                     ),
                                   ),
-                                  Text(
-                                    "${transfer.lojaDestino} - ${filiais.firstWhere(
-                                      (e) => e.pdv == transfer.lojaDestino,
-                                      orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
-                                    ).name}",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.4,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Text(
+                                        "${transfer.lojaDestino} - ${filiais.firstWhere(
+                                          (e) => e.pdv == transfer.lojaDestino,
+                                          orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
+                                        ).name}",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -377,7 +383,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                   ),
                                   trailing: Text(
-                                    '${item.quantitySent}x',
+                                    '${item.quantitySent}x | ${item.quantityReceived}x',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,

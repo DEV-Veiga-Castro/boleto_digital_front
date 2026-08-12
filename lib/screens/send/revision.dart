@@ -1,3 +1,4 @@
+import 'package:boleto_digital/models/branch_model.dart';
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
@@ -71,14 +72,35 @@ class _RevisionScreenState extends State<RevisionScreen> {
 
     final provider = context.read<TransferProvider>().transfer!;
 
+    final filiais = context.watch<BranchProvider>().branches;
+
+    String? lojaOrigemNome = filiais
+        .firstWhere(
+          (branch) => branch.pdv == provider.lojaOrigem,
+          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+        )
+        .name;
+
+    String? lojaDestinoNome = filiais
+        .firstWhere(
+          (branch) => branch.pdv == provider.lojaDestino,
+          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+        )
+        .name;
+
     // Inicia a impressão da etiqueta do Boleto Digital
-    await imprimirBoleto(
-      transferID: provider.id,
-      transferUUID: provider.uuid,
-      lojaOrigem: provider.lojaOrigem,
-      lojaDestino: provider.lojaDestino,
-      itens: provider.items,
-    );
+    if (provider.tipoTransferencia!.toLowerCase() != "venda"){
+      await imprimirBoleto(
+        transferID: provider.id,
+        transferType: provider.tipoTransferencia,
+        transferUUID: provider.uuid,
+        lojaOrigem: provider.lojaOrigem,
+        lojaOrigemNome: lojaOrigemNome,
+        lojaDestino: provider.lojaDestino,
+        lojaDestinoNome: lojaDestinoNome,
+        itens: provider.items,
+      );
+    }
   }
 
   Future<void> createMovimentacao() async {
@@ -134,7 +156,6 @@ class _RevisionScreenState extends State<RevisionScreen> {
 
     final transfer = transferProvider.transfer;
     final itens = transfer?.items ?? [];
-
 
     return Scaffold(
       appBar: AppBar(
@@ -481,42 +502,49 @@ class _RevisionScreenState extends State<RevisionScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _isLoading ? null : () async {
-                setState(() {
-                  _isLoading = true;
-                });
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
 
-                try {
-                  await createMovimentacao();
-                } finally {
-                  if (mounted) {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  }
-                }
-              },
+                      try {
+                        await createMovimentacao();
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      }
+                    },
               style: OutlinedButton.styleFrom(
                 backgroundColor: AppColors.verdeBoti,
                 minimumSize: Size(viewWidth * 0.8, 40),
               ),
-              child: _isLoading ? CircularProgressIndicator(strokeWidth: 2, color: AppColors.roxoEudora,) : Row(
-                children: [
-                  Text(
-                    "CONFIRMAR",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+              child: _isLoading
+                  ? CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.roxoEudora,
+                    )
+                  : Row(
+                      children: [
+                        Text(
+                          "CONFIRMAR",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_right_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ],
                     ),
-                  ),
-                  Icon(
-                    Icons.arrow_right_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ],
-              ),
             ),
           ],
         ),

@@ -7,9 +7,12 @@ import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 Future<void> imprimirBoleto(
   {
     int? transferID,
+    String? transferType,
     int? transferUUID,
     int? lojaOrigem,
+    String? lojaOrigemNome,
     int? lojaDestino,
+    String? lojaDestinoNome,
     List<DigitalTransferItems>? itens
   }
 ) async {
@@ -50,7 +53,7 @@ Future<void> imprimirBoleto(
   // ID do Boleto
   bytes += generator.row([
     PosColumn(
-      text: 'VC-$transferID',
+      text: 'VC-$transferID - $transferType',
       width: 12,
       styles: PosStyles(
         align: PosAlign.center,
@@ -72,7 +75,7 @@ Future<void> imprimirBoleto(
     ),
 
     PosColumn(
-      text: '$lojaOrigem',
+      text: '$lojaOrigem - $lojaOrigemNome',
       width: 8,
       styles: PosStyles(align: PosAlign.center),
     ),
@@ -86,7 +89,7 @@ Future<void> imprimirBoleto(
     ),
 
     PosColumn(
-      text: '$lojaDestino',
+      text: '$lojaDestino - $lojaDestinoNome',
       width: 8,
       styles: PosStyles(align: PosAlign.center),
     ),
