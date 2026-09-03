@@ -106,11 +106,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return;
     }
 
+    final filiais = context.watch<BranchProvider>().branches;
+
+    String? lojaOrigemNome = filiais
+        .firstWhere(
+          (branch) => branch.pdv == transfer!.lojaOrigem,
+          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+        )
+        .name;
+
+    String? lojaDestinoNome = filiais
+        .firstWhere(
+          (branch) => branch.pdv == transfer!.lojaDestino,
+          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+        )
+        .name;
+
     imprimirBoleto(
       transferID: transfer!.id,
+      transferType: transfer.tipoTransferencia,
       transferUUID: transfer.uuid,
       lojaOrigem: transfer.lojaOrigem,
+      lojaOrigemNome: lojaOrigemNome,
       lojaDestino: transfer.lojaDestino,
+      lojaDestinoNome: lojaDestinoNome,
       itens: transfer.items,
     );
   }
