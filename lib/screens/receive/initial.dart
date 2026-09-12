@@ -50,7 +50,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
         itemTransferID = transferProvider.transfer!.items.first.id;
         transferID = transferProvider.transfer?.id;
         selectedMovimentacao =
-            transferProvider.transfer?.tipoTransferencia ?? "";
+            transferProvider.transfer?.tipoTransferencia?.toUpperCase() ?? "";
         selectedLojaOrigem = transferProvider.transfer?.lojaOrigem ?? "";
         observacoesText = transferProvider.transfer?.comments ?? "";
       });

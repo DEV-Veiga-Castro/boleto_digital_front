@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class DigitalTransferItems {
   int? id;
   int? productID;
+  String? description;
   int? quantitySent;
   int? quantityReceived;
 
@@ -12,6 +13,7 @@ class DigitalTransferItems {
     required this.productID,
     required this.quantitySent,
     this.quantityReceived,
+    this.description
   });
 
   factory DigitalTransferItems.fromJson(Map<String, dynamic> json) =>
@@ -20,11 +22,13 @@ class DigitalTransferItems {
         productID: json['product_id'] as int?,
         quantitySent: json['quantity_sent'] as int?,
         quantityReceived: json['quantity_received'] ?? 0,
+        description: json['description'] as String?
       );
 
   Map<String, dynamic> toJson() => {
     'digital_transfer_id': id,
     'product_id': productID,
+    'description': description,
     'quantity_sent': quantitySent,
     'quantity_received': quantityReceived,
   };
@@ -136,7 +140,7 @@ class TransferProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addItem(int productID) {
+  void addItem(int productID, String? description) {
     if (_transfer == null) return;
 
     final index = _transfer!.items.indexWhere(
@@ -151,6 +155,7 @@ class TransferProvider extends ChangeNotifier {
         DigitalTransferItems(
           id: _transfer!.uuid,
           productID: productID,
+          description: description,
           quantitySent: 1,
           quantityReceived: 0,
         ),
@@ -203,8 +208,8 @@ class TransferProvider extends ChangeNotifier {
 
     if (index != -1) {
       int quantityReceived = _transfer!.items[index].quantityReceived ?? 0;
-      
-      if(quantityReceived > 0) {
+
+      if (quantityReceived > 0) {
         _transfer!.items[index].quantityReceived = quantityReceived - 1;
       }
     }

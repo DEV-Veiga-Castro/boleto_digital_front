@@ -185,7 +185,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          transferProvider.addItem(item.productID!);
+                          transferProvider.addItem(item.productID!, "add");
 
                           setState(() {});
                         },
@@ -204,6 +204,15 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
   Future<void> insertItens(int productID) async {
     if (!mounted) return;
+
+    bool hasAT = await _storage.isAccessTokenValid();
+
+    if (!hasAT) {
+      _storage.clearTokens();
+      // Navega para login se o token estiver ausente ou expirado
+      Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
 
     if (productID.isNaN) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -249,6 +258,8 @@ class _InsertSendScreen extends State<InsertSendScreen> {
 
     final transferProvider = context.read<TransferProvider>();
 
+    String description = "Descrição";
+
     int? productIndex = -1;
 
     productIndex = transferProvider.transfer?.items.indexWhere(
@@ -265,11 +276,13 @@ class _InsertSendScreen extends State<InsertSendScreen> {
         productIndex = product.indexWhere(
           (item) => item.codProduct == productID,
         );
+
+        description = product.first.description!;
       }
     }
 
     if (productIndex != -1) {
-      context.read<TransferProvider>().addItem(productID);
+      context.read<TransferProvider>().addItem(productID, description);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -330,6 +343,8 @@ class _InsertSendScreen extends State<InsertSendScreen> {
           backgroundColor: AppColors.vermelhoOui,
         ),
       );
+    } finally {
+      await scannerController.stop();
     }
   }
 
@@ -608,7 +623,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           title: Text(
-                            productProvider.getDescription(item.productID!),
+                            '${item.description}',
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),

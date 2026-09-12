@@ -77,19 +77,33 @@ class _RevisionScreenState extends State<RevisionScreen> {
     String? lojaOrigemNome = filiais
         .firstWhere(
           (branch) => branch.pdv == provider.lojaOrigem,
-          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+          orElse: () => Branch(
+            pdv: -1,
+            name: "Desconhecida",
+            address: "",
+            city: "",
+            state: "",
+            cnpj: "",
+          ),
         )
         .name;
 
     String? lojaDestinoNome = filiais
         .firstWhere(
           (branch) => branch.pdv == provider.lojaDestino,
-          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+          orElse: () => Branch(
+            pdv: -1,
+            name: "Desconhecida",
+            address: "",
+            city: "",
+            state: "",
+            cnpj: "",
+          ),
         )
         .name;
 
     // Inicia a impressão da etiqueta do Boleto Digital
-    if (provider.tipoTransferencia!.toLowerCase() != "venda"){
+    if (provider.tipoTransferencia!.toLowerCase() != "venda") {
       await imprimirBoleto(
         transferID: provider.id,
         transferType: provider.tipoTransferencia,
@@ -106,24 +120,24 @@ class _RevisionScreenState extends State<RevisionScreen> {
   Future<void> createMovimentacao() async {
     if (!mounted) return;
 
-    bool hasAT = await _storage.isAccessTokenValid();
-
-    if (!hasAT) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Tempo de sessão excedido, faça login novamente!"),
-        ),
-      );
-
-      await AuthService().logout();
-
-      setState(() {});
-    }
-
-    final accessToken = await _storage.getAccessToken();
-    final provider = context.read<TransferProvider>();
-
     try {
+      bool hasAT = await _storage.isAccessTokenValid();
+
+      if (!hasAT) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Tempo de sessão excedido, faça login novamente!"),
+          ),
+        );
+
+        await AuthService().logout();
+
+        setState(() {});
+      }
+
+      final accessToken = await _storage.getAccessToken();
+      final provider = context.read<TransferProvider>();
+
       final response = await DigitalTransferService().createMovimentacao(
         accessToken: accessToken!,
         digitalTransfer: provider.transfer!,
@@ -143,6 +157,8 @@ class _RevisionScreenState extends State<RevisionScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("$e!")));
+
+      Navigator.pushNamed(context, '/home');
     }
   }
 
@@ -471,7 +487,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           title: Text(
-                            productProvider.getDescription(item.productID!),
+                            '${item.description}',
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),

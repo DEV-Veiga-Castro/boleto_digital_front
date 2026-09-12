@@ -387,7 +387,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 ),
                               ),
                               Text(
-                                "${transfer?.tipoTransferencia}",
+                                "${transfer?.tipoTransferencia?.toUpperCase()}",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -423,7 +423,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 ),
                               ),
                               Text(
-                                "${transferProvider.getTotalQuantityReceived()} Itens",
+                                "${transferProvider.getTotalQuantityReceived()} ${transferProvider.getTotalQuantityReceived() > 1 ? "Itens" : "Item"}",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -487,7 +487,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           title: Text(
-                            productProvider.getDescription(item.productID!),
+                            '${item.description}',
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),

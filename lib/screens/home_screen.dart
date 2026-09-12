@@ -1,5 +1,4 @@
 import 'package:boleto_digital/models/branch_model.dart';
-import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
@@ -52,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadUserProfile();
     await _listMovimentacoes();
     await _listBranches();
-    await _listProducts();
+    // await _listProducts();
   }
 
   Future<void> _loadUserProfile() async {
@@ -159,16 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
 
     await context.read<BranchProvider>().loadBranches(token);
-
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _listProducts() async {
-    String? token = await _storage.getAccessToken();
-
-    if (!mounted) return;
-
-    await context.read<ProductProvider>().loadProducts(token);
 
     if (mounted) setState(() {});
   }
@@ -292,7 +281,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: Icon(Icons.system_update),
                 title: Text("Atualizações"),
                 onTap: () async {
-                  final url = Uri.parse("https://erp-apk.cvumn9.easypanel.host/app-latest.apk");
+                  final url = Uri.parse(
+                    "https://erp-apk.cvumn9.easypanel.host/app-latest.apk",
+                  );
+
+                  if (!await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    throw Exception("Não foi possível abrir o link: $url");
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.book),
+                title: Text("Manual"),
+                onTap: () async {
+                  final url = Uri.parse("https://wiki.veigacastro.dev.br/doc/boleto-digital-fEMNbiMQ7o");
 
                   if (!await launchUrl(
                     url,

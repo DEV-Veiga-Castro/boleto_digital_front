@@ -25,6 +25,7 @@
             "name": "boleto_digital (debug mode)",
             "request": "launch",
             "type": "dart",
+            "flutterMode": "debug",
             "args": [
                 "--dart-define-from-file",
                 ".env",

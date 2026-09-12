@@ -109,9 +109,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.4,
                                 child: Text(
-                                  descriptionProvider.getDescription(
-                                    item.productID!,
-                                  ),
+                                  '${item.description}',
                                   maxLines: 2,
                                   overflow: TextOverflow.fade,
                                   style: TextStyle(
@@ -185,6 +183,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                           null;
                         },
                         icon: Icon(Icons.exposure_plus_1_rounded),
+                        color: Colors.transparent,
                       ),
                     ],
                   ),
@@ -229,11 +228,10 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
     final transferProvider = context.read<TransferProvider>();
 
     final itemIndex = transferProvider.transfer?.items.indexWhere(
-      (item) => item.productID == productID
+      (item) => item.productID == productID,
     );
 
     if (itemIndex != -1) {
-
       String response = transferProvider.addReceivedItem(productID);
 
       if (response != "") {
@@ -304,6 +302,8 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
           backgroundColor: AppColors.vermelhoOui,
         ),
       );
+    } finally {
+      await scannerController.stop();
     }
   }
 
@@ -568,7 +568,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           title: Text(
-                            productProvider.getDescription(item.productID!),
+                            '${item.description}',
                             maxLines: 1,
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),

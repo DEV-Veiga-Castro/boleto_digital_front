@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/models/history_model.dart';
-import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
@@ -111,14 +110,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
     String? lojaOrigemNome = filiais
         .firstWhere(
           (branch) => branch.pdv == transfer!.lojaOrigem,
-          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+          orElse: () => Branch(
+            pdv: -1,
+            name: "Desconhecida",
+            address: "",
+            city: "",
+            state: "",
+            cnpj: "",
+          ),
         )
         .name;
 
     String? lojaDestinoNome = filiais
         .firstWhere(
           (branch) => branch.pdv == transfer!.lojaDestino,
-          orElse: () => Branch(pdv: -1, name: "Desconhecida", address: "", city: "", state: "", cnpj: ""),
+          orElse: () => Branch(
+            pdv: -1,
+            name: "Desconhecida",
+            address: "",
+            city: "",
+            state: "",
+            cnpj: "",
+          ),
         )
         .name;
 
@@ -221,8 +234,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     BuildContext context,
     DigitalTransfer transfer,
   ) async {
-    final productProvider = context.read<ProductProvider>();
-    final filiais = context.watch<BranchProvider>().branches;
+    final filiais = context.read<BranchProvider>().branches;
 
     showModalBottomSheet(
       context: context,
@@ -306,7 +318,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                   ),
                                   SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.4,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
                                     child: SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: Text(
@@ -352,9 +365,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         SliverToBoxAdapter(child: SizedBox(height: 20)),
                         SliverToBoxAdapter(
-                          child: Text(
-                            "ITENS",
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "ITENS",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  "ENV | REC",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         SliverList(
@@ -392,9 +426,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                   ),
                                   title: Text(
-                                    productProvider.getDescription(
-                                      item.productID!,
-                                    ),
+                                    '${item.description}',
                                     maxLines: 1,
                                     style: TextStyle(
                                       color: Colors.white,
@@ -425,6 +457,63 @@ class _HistoryScreenState extends State<HistoryScreen> {
       },
     );
   }
+
+  void _showHelperDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Ícones de Status", textAlign: TextAlign.center,),
+          content: const SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: ListBody(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.hourglass_empty_rounded,
+                    color: Colors.orange,
+                    size: 30,
+                  ),
+                  title: Text("Movimentação em Andamento"),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.cancel_sharp, 
+                    color: Colors.red, 
+                    size: 30
+                  ),
+                  title: Text("Movimentação Cancelada"),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: Colors.blue,
+                    size: 30,
+                  ),
+                  title: Text("Movimentação Conferida"),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.description_outlined,
+                    color: AppColors.verdeBoti,
+                    size: 30,
+                  ),
+                  title: Text("Movimentação Concluída"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //     "concluida": Icon(
+  //       Icons.description_outlined,
+  //       color: AppColors.verdeBoti,
+  //       size: 30,
+  //     ),
 
   Future<void> _showFilterModal(BuildContext context, double? viewWidth) async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -927,7 +1016,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     Intl.defaultLocale = 'pt_BR';
 
     final history = context.read<TransferHistoryProvider>().transfers;
-    final filiais = context.watch<BranchProvider>().branches;
+    final filiais = context.read<BranchProvider>().branches;
 
     final itens = history;
 
@@ -988,7 +1077,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _showHelperDialog(context);
+            },
             padding: EdgeInsets.only(right: 16),
             icon: const Icon(
               Icons.help_outline_rounded,
@@ -1275,6 +1366,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.max,
                                 children: [
                                   Column(
                                     spacing: 12,
@@ -1305,14 +1397,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           ),
                                         ),
                                       ),
-                                      Text(
-                                        "${DateTime.parse(item.createdAt!).day.toString().padLeft(2, '0')}"
-                                        " de ${DateFormat('MMMM').format(DateTime.parse(item.createdAt!))} de "
-                                        "${DateTime.parse(item.createdAt!).year} às "
-                                        "${(DateTime.parse(item.createdAt!).hour - 3).toString().padLeft(2, '0')}:${DateTime.parse(item.createdAt!).minute.toString().padLeft(2, '0')}",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
+                                      SizedBox(
+                                        width: viewWidth * 0.5,
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Text(
+                                            "${DateTime.parse(item.createdAt!).day.toString().padLeft(2, '0')}"
+                                            "/${DateFormat('MM').format(DateTime.parse(item.createdAt!))}/"
+                                            "${DateTime.parse(item.createdAt!).year} às "
+                                            "${(DateTime.parse(item.createdAt!).hour - 3).toString().padLeft(2, '0')}:${DateTime.parse(item.createdAt!).minute.toString().padLeft(2, '0')}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              letterSpacing: 1.5,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1322,7 +1421,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     spacing: 16,
                                     children: [
                                       Text(
-                                        "${item.tipoTransferencia}",
+                                        "${item.tipoTransferencia?.toUpperCase()}",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,

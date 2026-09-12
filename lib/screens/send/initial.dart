@@ -17,7 +17,6 @@ class InitialSendScreen extends StatefulWidget {
 class _InitialSendScreen extends State<InitialSendScreen> {
   final _storage = ClientStorage();
   User? _user;
-  final dynamic _userBranches = [];
   // var values = products.map((product) => product['price'] as double)
 
   IconData iconTipoMov = Icons.keyboard_arrow_down;

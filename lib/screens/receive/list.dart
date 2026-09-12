@@ -440,7 +440,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                   spacing: 16,
                                   children: [
                                     Text(
-                                      "${item.tipoTransferencia}",
+                                      "${item.tipoTransferencia?.toUpperCase()}",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,

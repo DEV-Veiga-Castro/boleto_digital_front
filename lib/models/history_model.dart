@@ -20,7 +20,7 @@ class DigitalTransferHistory {
 }
 
 class TransferHistoryProvider extends ChangeNotifier {
-  final DigitalTransferService _service = DigitalTransferService();
+  // final DigitalTransferService _service = DigitalTransferService();
 
   List<DigitalTransfer> _transfers = [];
 
