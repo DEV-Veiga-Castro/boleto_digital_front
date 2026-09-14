@@ -230,6 +230,210 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+  Future<void> _showItemModal(
+    BuildContext context,
+    DigitalTransfer transfer,
+    DigitalTransferItems item,
+  ) async {
+    String? accessToken = await _storage.getAccessToken();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<TransferProvider>(
+          builder: (context, transferProvider, child) {
+            return Container(
+              height: 250,
+              padding: EdgeInsets.all(40.0),
+              decoration: BoxDecoration(
+                color: AppColors.cinzaContainer,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        spacing: 12,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "CÓDIGO: ",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                "${transferProvider.transfer!.items.firstWhere((e) => e.productID == item.productID).productID}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "DESCRIÇÃO: ",
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                child: Text(
+                                  '${transferProvider.transfer!.items.firstWhere((e) => e.productID == item.productID).description}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          if (transferProvider.transfer!.status ==
+                              "em_andamento") {
+                            final success = await transferProvider
+                                .removeHistoryItem(
+                                  productID: item.productID!,
+                                  transferID: transferProvider.transfer!.uuid!,
+                                  accessToken: accessToken!,
+                                );
+
+                            if (!success && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Não foi possível remover o produto!",
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Item removido com sucesso!"),
+                                ),
+                              );
+                            }
+                          }
+
+                          Navigator.pop(context);
+
+                          setState(() {});
+                        },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white.withAlpha(10),
+                        ),
+                        icon: Icon(
+                          Icons.delete_outlined,
+                          color: Colors.red,
+                          size: 26,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(color: Colors.grey),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          final success = await transferProvider.subHistoryItem(
+                            productID: item.productID!,
+                            accessToken: accessToken!,
+                          );
+
+                          if (!success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Não foi possível diminuir a quantidade!",
+                                ),
+                              ),
+                            );
+                          }
+
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.exposure_minus_1_rounded),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withAlpha(20),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(15),
+                              blurRadius: 3,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.all(12),
+                        width: 60,
+                        alignment: Alignment.center,
+                        child: Text(
+                          "${transferProvider.getQuantitySent(item.productID!)}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          final success = await transferProvider.addHistoryItem(
+                            productID: item.productID!,
+                            accessToken: accessToken!,
+                          );
+
+                          print("PASSEI");
+
+                          if (!success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Não foi possível aumentar a quantidade!",
+                                ),
+                              ),
+                            );
+                          }
+
+                          // setState(() {});
+                        },
+                        icon: Icon(Icons.exposure_plus_1_rounded),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _showTransferModal(
     BuildContext context,
     DigitalTransfer transfer,
@@ -396,7 +600,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             context,
                             index,
                           ) {
-                            final item = transfer.items[index];
+                            final item =
+                                transferProvider.transfer!.items[index];
 
                             return Container(
                               margin: const EdgeInsets.symmetric(
@@ -441,10 +646,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  onTap: () {
+                                    if (transfer.status == "em_andamento") {
+                                      _showItemModal(context, transfer, item);
+                                    }
+                                  },
                                 ),
                               ),
                             );
-                          }, childCount: transfer.items.length),
+                          }, childCount: transferProvider.transfer!.items.length),
                         ),
                       ],
                     ),
@@ -464,7 +674,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Ícones de Status", textAlign: TextAlign.center,),
+          title: const Text("Ícones de Status", textAlign: TextAlign.center),
           content: const SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: ListBody(
@@ -479,9 +689,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 ListTile(
                   leading: Icon(
-                    Icons.cancel_sharp, 
-                    color: Colors.red, 
-                    size: 30
+                    Icons.cancel_sharp,
+                    color: Colors.red,
+                    size: 30,
                   ),
                   title: Text("Movimentação Cancelada"),
                 ),
@@ -1357,6 +1567,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             borderRadius: BorderRadius.circular(12),
                             child: ElevatedButton(
                               onPressed: () {
+                                context
+                                    .read<TransferProvider>()
+                                    .setHistoryTransfer(item);
                                 _showTransferModal(context, item);
                               },
                               style: OutlinedButton.styleFrom(

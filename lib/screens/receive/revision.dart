@@ -124,7 +124,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
     try {
       print(provider.transfer!.uuid);
 
-      String response = await DigitalTransferService().updateMovimentacaoItems(
+      final update = await DigitalTransferService().updateMovimentacaoItems(
         accessToken: accessToken!,
         transferID: provider.transfer!.uuid!,
         digitalItems: provider.transfer!.items,
@@ -133,11 +133,11 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(response)));
+      ).showSnackBar(SnackBar(content: Text(update.message)));
 
       bool hasDiscrepancies = await verifyDiscrepancy(); 
 
-      response = await DigitalTransferService().updateTransferStatus(
+      final response = await DigitalTransferService().updateTransferStatus(
         accessToken: accessToken,
         transferID: provider.transfer!.uuid!,
         status: 'conferida',

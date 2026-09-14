@@ -5,6 +5,12 @@ import 'package:boleto_digital/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+class UpdateResult {
+  final bool success;
+  final String message;
+  UpdateResult(this.success, this.message);
+}
+
 class DigitalTransferService {
   var baseURL = const String.fromEnvironment('API_URL');
 
@@ -76,6 +82,41 @@ class DigitalTransferService {
     return ":)";
   }
 
+  Future<UpdateResult> deleteMovimentacaoItem({
+    required int transferID,
+    required int productID,
+    required String accessToken,
+  }) async {
+    final url = Uri.parse('$baseURL/dt/delete/item/$transferID/$productID');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        return UpdateResult(true, data['message'] ?? "Atualizado com sucesso!");
+      } else {
+        final data = jsonDecode(response.body);
+
+        return UpdateResult(
+          true,
+          data?['detail'] ??
+              "Erro ao atualizar (status ${response.statusCode})",
+        );
+      }
+    } catch (e) {
+      print(e);
+      return UpdateResult(false, "Ocorreu um erro ao atualizar os itens: $e");
+    }
+  }
+
   Future<Map<String, dynamic>> listLastMovimentacao({
     required String accessToken,
     required int branchID,
@@ -116,7 +157,7 @@ class DigitalTransferService {
     return {"transfer_id": -1};
   }
 
-  Future<String> updateMovimentacaoItems({
+  Future<UpdateResult> updateMovimentacaoItems({
     required String accessToken,
     required int transferID,
     required List<DigitalTransferItems> digitalItems,
@@ -146,15 +187,19 @@ class DigitalTransferService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        return data['message'];
+        return UpdateResult(true, data['message'] ?? "Atualizado com sucesso!");
       } else {
         final data = jsonDecode(response.body);
 
-        return data['detail'];
+        return UpdateResult(
+          true,
+          data?['detail'] ??
+              "Erro ao atualizar (status ${response.statusCode})",
+        );
       }
     } catch (e) {
       print(e);
-      return "Ocorreu um erro ao atualizar os itens: $e";
+      return UpdateResult(false, "Ocorreu um erro ao atualizar os itens: $e");
     }
   }
 
@@ -172,7 +217,7 @@ class DigitalTransferService {
       filter = "$filter&transfer_id=$transferID";
     }
 
-    if(transferUUID != null) {
+    if (transferUUID != null) {
       filter = "$filter&transfer_uuid=$transferUUID";
     }
 
@@ -219,7 +264,7 @@ class DigitalTransferService {
     required int transferID,
     required String status,
     required String model,
-    bool? hasDiscrepancies
+    bool? hasDiscrepancies,
   }) async {
     final url = Uri.parse('$baseURL/dt/$model/update/status/$transferID');
 
@@ -232,7 +277,7 @@ class DigitalTransferService {
         },
         body: jsonEncode({
           "status": status,
-          "has_discrepancies": hasDiscrepancies
+          "has_discrepancies": hasDiscrepancies,
         }),
       );
 

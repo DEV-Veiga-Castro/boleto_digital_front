@@ -297,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: Icon(Icons.book),
                 title: Text("Manual"),
                 onTap: () async {
-                  final url = Uri.parse("https://wiki.veigacastro.dev.br/doc/boleto-digital-fEMNbiMQ7o");
+                  final url = Uri.parse("https://wiki.veigacastro.dev.br/s/2d9ca862-4faa-40ee-8a73-4dbe9abfa07e");
 
                   if (!await launchUrl(
                     url,

@@ -52,7 +52,6 @@ class _InsertSendScreen extends State<InsertSendScreen> {
     // Remove o focus do textfield do código
     FocusManager.instance.primaryFocus?.unfocus();
 
-    final descriptionProvider = context.read<ProductProvider>();
     final transferProvider = context.read<TransferProvider>();
 
     int quantitySent = item.quantitySent!;
@@ -115,9 +114,7 @@ class _InsertSendScreen extends State<InsertSendScreen> {
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.4,
                                 child: Text(
-                                  descriptionProvider.getDescription(
-                                    item.productID!,
-                                  ),
+                                  '${item.description}',
                                   maxLines: 2,
                                   overflow: TextOverflow.fade,
                                   style: TextStyle(

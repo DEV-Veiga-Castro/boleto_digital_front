@@ -13,7 +13,7 @@ class DigitalTransferItems {
     required this.productID,
     required this.quantitySent,
     this.quantityReceived,
-    this.description
+    this.description,
   });
 
   factory DigitalTransferItems.fromJson(Map<String, dynamic> json) =>
@@ -22,7 +22,7 @@ class DigitalTransferItems {
         productID: json['product_id'] as int?,
         quantitySent: json['quantity_sent'] as int?,
         quantityReceived: json['quantity_received'] ?? 0,
-        description: json['description'] as String?
+        description: json['description'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -114,6 +114,17 @@ class TransferProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setHistoryTransfer(DigitalTransfer value) {
+    if (transfer != null) {
+      clear();
+      notifyListeners();
+    }
+
+    _transfer = value;
+
+    notifyListeners();
+  }
+
   Future<void> setTransfer(
     DigitalTransfer value,
     String accessToken,
@@ -184,6 +195,50 @@ class TransferProvider extends ChangeNotifier {
     return "";
   }
 
+  Future<bool> addHistoryItem({
+    required int productID,
+    required String accessToken,
+  }) async {
+    if (_transfer == null || _transfer!.uuid == null) {
+      print("OBJETO VAZIO");
+      return false;
+    }
+
+    if (_transfer!.status != "em_andamento") return false;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index == -1) return false;
+
+    final currentyQuantity = _transfer!.items[index].quantitySent ?? 0;
+
+    final newQuantity = currentyQuantity + 1;
+
+    final result = await DigitalTransferService().updateMovimentacaoItems(
+      accessToken: accessToken,
+      transferID: transfer!.uuid!,
+      digitalItems: [
+        DigitalTransferItems(
+          id: transfer!.uuid,
+          productID: productID,
+          quantitySent: newQuantity,
+          quantityReceived: _transfer!.items[index].quantityReceived ?? 0,
+        ),
+      ],
+      model: "send",
+    );
+
+    if (!result.success) return false;
+
+    _transfer!.items[index].quantitySent = newQuantity;
+
+    notifyListeners();
+
+    return true;
+  }
+
   void subItem(int productID) {
     if (_transfer == null) return;
 
@@ -217,6 +272,49 @@ class TransferProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> subHistoryItem({
+    required int productID,
+    required String accessToken,
+  }) async {
+    if (_transfer == null || _transfer!.uuid == null) return false;
+
+    if (_transfer!.status != "em_andamento") return false;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index == -1) return false;
+
+    final currentyQuantity = _transfer!.items[index].quantitySent ?? 0;
+
+    final newQuantity = currentyQuantity - 1;
+
+    if (newQuantity < 0) return false;
+
+    final result = await DigitalTransferService().updateMovimentacaoItems(
+      accessToken: accessToken,
+      transferID: transfer!.uuid!,
+      digitalItems: [
+        DigitalTransferItems(
+          id: transfer!.uuid,
+          productID: productID,
+          quantitySent: newQuantity,
+          quantityReceived: _transfer!.items[index].quantityReceived ?? 0,
+        ),
+      ],
+      model: "send",
+    );
+
+    if (!result.success) return false;
+
+    _transfer!.items[index].quantitySent = newQuantity;
+
+    notifyListeners();
+
+    return true;
+  }
+
   bool removeItem(int productID) {
     if (_transfer == null) return false;
 
@@ -224,13 +322,45 @@ class TransferProvider extends ChangeNotifier {
       (item) => item.productID == productID,
     );
 
-    if (index != -1) {
-      _transfer!.items.removeAt(index);
-    } else {
+    if (index == -1) {
       return false;
     }
 
-    return false;
+    _transfer!.items.removeAt(index);
+
+    notifyListeners();
+
+    return true;
+  }
+
+  Future<bool> removeHistoryItem({
+    required int productID,
+    required int transferID,
+    required String accessToken,
+  }) async {
+    if (_transfer == null || _transfer!.uuid == null) return false;
+
+    if (_transfer!.status != "em_andamento") return false;
+
+    final index = _transfer!.items.indexWhere(
+      (item) => item.productID == productID,
+    );
+
+    if (index == -1) return false;
+
+    final result = await DigitalTransferService().deleteMovimentacaoItem(
+      transferID: transferID,
+      productID: productID,
+      accessToken: accessToken,
+    );
+
+    if (!result.success) return false;
+
+    _transfer!.items.removeAt(index);
+
+    notifyListeners();
+
+    return true;
   }
 
   int getQuantitySent(int productID) {
