@@ -131,7 +131,18 @@ class TransferProvider extends ChangeNotifier {
     int branchID,
   ) async {
     print("TRANFER ATUAL:: $transfer");
-    if (transfer != null) return;
+
+    if (_transfer != null) {
+      if (_transfer!.lojaDestino != value.lojaDestino) {
+        _transfer!.lojaDestino = value.lojaDestino;
+      }
+
+      if (_transfer!.tipoTransferencia != value.tipoTransferencia) {
+        _transfer!.tipoTransferencia = value.tipoTransferencia;
+      }
+
+      return;
+    }
 
     _transfer = value;
 

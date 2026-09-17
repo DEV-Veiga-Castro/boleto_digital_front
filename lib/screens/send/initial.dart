@@ -87,6 +87,17 @@ class _InitialSendScreen extends State<InitialSendScreen> {
         return;
       }
 
+      if (selectedMovimentacao == "BAIXA" && observacoesText.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Por favor, informe o motivo da BAIXA, em OBSERVAÇÕES!"),
+            backgroundColor: Colors.amber[200],
+          ),
+        );
+
+        return;
+      }
+
       DigitalTransfer? transfer = DigitalTransfer(
         lojaOrigem: actualBranch,
         lojaDestino: selectedLojaDestino,

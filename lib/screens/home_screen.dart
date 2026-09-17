@@ -151,6 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _listBranches() async {
+    final isTokenValid = await ClientStorage().isAccessTokenValid();
+
+    if (!isTokenValid) {
+      await ClientStorage().clearTokens();
+
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+
     String? token = await _storage.getAccessToken();
 
     // final branches = await BranchService().listBranch(accessToken: token!);

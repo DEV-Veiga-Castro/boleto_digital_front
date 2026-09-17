@@ -1,3 +1,4 @@
+import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/services/routes/branch_service.dart';
 import 'package:flutter/material.dart';
 
