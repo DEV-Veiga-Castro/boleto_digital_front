@@ -51,10 +51,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _preLoadTransfers();
   }
 
+  late TransferProvider _transferProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _transferProvider = context.read<TransferProvider>();
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
-    context.read<TransferProvider>().clear();
+    _transferProvider.clear();
     super.dispose();
   }
 

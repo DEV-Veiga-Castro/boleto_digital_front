@@ -38,9 +38,18 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
     // loadBranches();
   }
 
+  late TransferProvider _transferProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _transferProvider = context.read<TransferProvider>();
+  }
+
   @override
   void dispose() {
-    context.read<TransferProvider>().clear();
+    _transferProvider.clear();
     super.dispose();
   }
 
@@ -259,7 +268,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.white,
-                                      overflow: TextOverflow.fade
+                                      overflow: TextOverflow.fade,
                                     ),
                                   ),
                                 ),
@@ -377,9 +386,9 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                       "${observacoesText.isNotEmpty ? observacoesText.capitalize() : "Sem observações"}",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18
+                                        fontSize: 18,
                                       ),
-                                    )
+                                    ),
                                   ],
                                 ),
                                 border: InputBorder.none,

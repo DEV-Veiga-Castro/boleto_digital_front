@@ -41,9 +41,18 @@ class _InitialSendScreen extends State<InitialSendScreen> {
     // loadBranches();
   }
 
+  late TransferProvider _transferProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _transferProvider = context.read<TransferProvider>();
+  }
+
   @override
   void dispose() {
-    context.read<TransferProvider>().clear();
+    _transferProvider.clear();
     super.dispose();
   }
 
