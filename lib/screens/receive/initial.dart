@@ -40,7 +40,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
 
   @override
   void dispose() {
-    Provider.of<TransferProvider>(context, listen: false).clear();
+    context.read<TransferProvider>().clear();
     super.dispose();
   }
 

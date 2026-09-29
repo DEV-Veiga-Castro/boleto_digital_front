@@ -54,7 +54,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void dispose() {
     _pageController.dispose();
-    Provider.of<TransferProvider>(context, listen: false).clear();
+    context.read<TransferProvider>().clear();
     super.dispose();
   }
 

@@ -43,7 +43,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
 
   @override
   void dispose() {
-    Provider.of<TransferProvider>(context, listen: false).clear();
+    context.read<TransferProvider>().clear();
     super.dispose();
   }
 
