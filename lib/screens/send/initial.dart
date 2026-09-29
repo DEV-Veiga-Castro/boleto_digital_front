@@ -41,6 +41,12 @@ class _InitialSendScreen extends State<InitialSendScreen> {
     // loadBranches();
   }
 
+  @override
+  void dispose() {
+    Provider.of<TransferProvider>(context, listen: false).clear();
+    super.dispose();
+  }
+
   Future<void> preLoad() async {
     User? userProfile = await _storage.getUserProfile();
 
@@ -90,7 +96,9 @@ class _InitialSendScreen extends State<InitialSendScreen> {
       if (selectedMovimentacao == "BAIXA" && observacoesText.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Por favor, informe o motivo da BAIXA, em OBSERVAÇÕES!"),
+            content: Text(
+              "Por favor, informe o motivo da BAIXA, em OBSERVAÇÕES!",
+            ),
             backgroundColor: Colors.amber[200],
           ),
         );

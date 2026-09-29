@@ -38,6 +38,12 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
     // loadBranches();
   }
 
+  @override
+  void dispose() {
+    Provider.of<TransferProvider>(context, listen: false).clear();
+    super.dispose();
+  }
+
   Future<void> preLoad() async {
     User? userProfile = await _storage.getUserProfile();
 
