@@ -28,7 +28,7 @@
             "flutterMode": "debug",
             "args": [
                 "--dart-define-from-file",
-                ".env",
+                ".env.dev",
             ]
         }
     ]
