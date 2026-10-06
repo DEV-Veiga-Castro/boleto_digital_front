@@ -6,7 +6,6 @@ import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/services/routes/user_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_balloons/widgets/balloon.dart';
 import 'package:flutter_balloons/widgets/balloon_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -253,8 +252,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               // print(branches.pdv);
                               _selectedBranch = branches.pdv;
 
-                              print("EU selecionei $_selectedBranch");
-
                               await context
                                   .read<UserProvider>()
                                   .setActualBranch(_selectedBranch!);
@@ -422,6 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Column(
               children: [
+                SizedBox(height: 16),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _checkLoginStatus,
@@ -693,8 +691,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+
             if (showBalloon)
-              BalloonOverlay(
+              const BalloonOverlay(
                 totalBalloons: 30,
                 spawnInterval: Duration(milliseconds: 500),
               ),

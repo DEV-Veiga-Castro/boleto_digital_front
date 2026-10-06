@@ -1,5 +1,4 @@
 import 'package:boleto_digital/models/dt_model.dart';
-import 'package:boleto_digital/models/product_model.dart';
 import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/services/routes/dt_service.dart';
@@ -155,10 +154,9 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
 
       Navigator.pushNamed(context, '/home');
     } catch (e, stackTrace) {
-      print("Eu sou o erro: $stackTrace");
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("$e!")));
+      ).showSnackBar(SnackBar(content: Text("$e! - $stackTrace")));
     }
   }
 
@@ -168,7 +166,6 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
     final viewWidth = MediaQuery.of(context).size.width;
 
     final transferProvider = context.read<TransferProvider>();
-    final productProvider = context.read<ProductProvider>();
 
     final transfer = transferProvider.transfer;
     final itens = transfer?.items ?? [];

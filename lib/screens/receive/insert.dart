@@ -1,8 +1,9 @@
+import 'dart:js/js_wasm.dart';
+
 import 'package:boleto_digital/models/dt_model.dart';
-import 'package:boleto_digital/models/product_model.dart';
-import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -16,9 +17,13 @@ class InsertReceiveScreen extends StatefulWidget {
 }
 
 class _InsertReceiveScreen extends State<InsertReceiveScreen> {
-  final _storage = ClientStorage();
-
   late FocusNode _focusTextField;
+
+  AudioSource? _beepSound;
+  bool _soloudReady = false;
+  bool _isBeeping = false;
+
+  bool userWantsScanning = false;
 
   TextEditingController productCode = TextEditingController();
   final MobileScannerController scannerController = MobileScannerController(
@@ -36,6 +41,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
   void initState() {
     super.initState();
     _focusTextField = FocusNode();
+    _initSoLoud();
   }
 
   @override
@@ -45,14 +51,43 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
     super.dispose();
   }
 
+  Future<void> _initSoLoud() async {
+    try {
+      final soloud = SoLoud.instance;
+
+      if (!soloud.isInitialized) {
+        await soloud.init();
+      }
+
+      _beepSound = await soloud.loadAsset('assets/sound/beep.mp3');
+      _soloudReady = true;
+    } catch (e) {
+      debugPrint('Erro ao inicializar SoLoud: $e');
+      _soloudReady = false;
+    }
+  }
+
+  Future<void> _beepPlayer() async {
+    if (_isBeeping) return; // ignora chamadas sobrepostas
+    if (!_soloudReady || _beepSound == null) return;
+    if (!SoLoud.instance.isInitialized) return;
+
+    _isBeeping = true;
+    try {
+      SoLoud.instance.play(_beepSound!);
+    } catch (e) {
+      debugPrint('Erro ao tocar beep: $e');
+    } finally {
+      _isBeeping = false;
+    }
+  }
+
   Future<void> _showItemModal(
     BuildContext context,
     DigitalTransferItems item,
   ) async {
     // Remove o focus do textfield do código
     FocusManager.instance.primaryFocus?.unfocus();
-
-    final descriptionProvider = context.read<ProductProvider>();
 
     showModalBottomSheet(
       context: context,
@@ -313,7 +348,6 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
     final viewWidth = MediaQuery.of(context).size.width;
 
     final transfer = context.read<TransferProvider>().transfer;
-    final productProvider = context.read<ProductProvider>();
 
     final itens = transfer?.items ?? [];
 
@@ -412,25 +446,61 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadiusGeometry.circular(12),
-                      child: MobileScanner(
-                        controller: scannerController,
-                        onDetect: (capture) async {
-                          final barcode = capture.barcodes.first.rawValue;
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          MobileScanner(
+                            controller: scannerController,
+                            onDetect: (capture) async {
+                              await _beepPlayer();
 
-                          if (barcode == null) return;
+                              final barcode = capture.barcodes.first.rawValue;
+                              if (barcode == null || barcode == lastCode) {
+                                return;
+                              }
+                              try {
+                                await scannerController.stop();
+                                await insertItens(int.parse(barcode));
 
-                          if (barcode == lastCode) return;
-
-                          await scannerController.stop();
-
-                          await insertItens(int.parse(barcode));
-
-                          Future.delayed(Duration(seconds: 1), () {
-                            setState(() {
-                              scannerController.start();
-                            });
-                          });
-                        },
+                                Future.delayed(
+                                  const Duration(seconds: 1),
+                                  () async {
+                                    if (!mounted) return;
+                                    if (!userWantsScanning) return;
+                                    try {
+                                      await scannerController.start();
+                                    } catch (e) {
+                                      debugPrint(
+                                        'Erro ao reiniciar scanner: $e',
+                                      );
+                                    }
+                                  },
+                                );
+                              } catch (e) {
+                                debugPrint('Erro ao parar scanner: $e');
+                              }
+                            },
+                          ),
+                          // overlay por cima, sem desmontar o MobileScanner
+                          ValueListenableBuilder<MobileScannerState>(
+                            valueListenable: scannerController,
+                            builder: (context, state, child) {
+                              if (state.isRunning) {
+                                return const SizedBox.shrink();
+                              } else {
+                                return Container(
+                                  color: Colors.black.withAlpha(50),
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.videocam_off,
+                                    color: Colors.white54,
+                                    size: 40,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -617,24 +687,30 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                if (!scannerAtivo) {
-                  await scannerController.start();
-                } else {
-                  await scannerController.stop();
+                try {
+                  if (userWantsScanning) {
+                    await scannerController.stop();
+                  } else {
+                    await scannerController.start();
+                  }
+                  setState(() {
+                    userWantsScanning = !userWantsScanning;
+                  });
+                } catch (e) {
+                  debugPrint('Erro ao alternar scanner: $e');
                 }
-
-                setState(() {
-                  scannerAtivo = !scannerAtivo;
-                  // _cameraPreview(isActive);
-                });
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: Size(viewWidth * 0.2, viewHeight * 0.06),
-                backgroundColor: scannerAtivo
+                backgroundColor: userWantsScanning
                     ? AppColors.verdeBoti
                     : Colors.grey,
               ),
-              child: Icon(Icons.barcode_reader, size: 24, color: Colors.white),
+              child: const Icon(
+                Icons.barcode_reader,
+                size: 24,
+                color: Colors.white,
+              ),
             ),
             ElevatedButton(
               onPressed: () async {

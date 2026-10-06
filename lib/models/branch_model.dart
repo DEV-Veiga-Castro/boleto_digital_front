@@ -60,7 +60,13 @@ class BranchProvider extends ChangeNotifier {
   }
 
   Future<void> loadBranches(String? token) async {
-    final data = await _service.listBranch(accessToken: token!);
+    if (token == null) {
+      _branches.clear();
+      notifyListeners();
+      return;
+    }
+
+    final data = await _service.listBranch(accessToken: token);
 
     if (data != null) {
       _branches = data;

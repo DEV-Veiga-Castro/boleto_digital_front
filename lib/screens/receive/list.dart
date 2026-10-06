@@ -114,8 +114,6 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
 
                   selectedItemUUID = int.tryParse(barcode);
 
-                  print("UUID DA MOVIMENTAÇÃO : $selectedItemUUID");
-
                   await listMovimentacoes();
 
                   await scannerController.stop();

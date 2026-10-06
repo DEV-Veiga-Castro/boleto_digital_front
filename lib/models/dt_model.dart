@@ -130,7 +130,6 @@ class TransferProvider extends ChangeNotifier {
     String accessToken,
     int branchID,
   ) async {
-    print("TRANFER ATUAL:: $transfer");
 
     if (_transfer != null) {
       if (_transfer!.lojaDestino != value.lojaDestino) {
@@ -151,12 +150,12 @@ class TransferProvider extends ChangeNotifier {
       branchID: branchID,
     );
 
-    int _transferID = data["transfer_id"];
-    int _transferUUID = data["transfer_uuid"];
+    int transferID = data["transfer_id"];
+    int transferUUID = data["transfer_uuid"];
 
-    if (_transferUUID != -1) {
-      value.id = _transferID + 1;
-      value.uuid = _transferUUID + 1;
+    if (transferUUID != -1) {
+      value.id = transferID + 1;
+      value.uuid = transferUUID + 1;
     }
 
     notifyListeners();
