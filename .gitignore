@@ -46,3 +46,6 @@ app.*.map.json
 
 .env
 .env.dev
+# Widget Preview related
+.widget_preview/
+.vscode/

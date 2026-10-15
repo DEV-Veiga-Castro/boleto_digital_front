@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color blackBackground = Color(0xFF121212);
   static const Color cinzaContainer = Color(0xFF2C2C2C);
+  static const Color cinzaDropdown= Color.fromARGB(255, 93, 92, 92);
   static const Color verdeBoti = Color(0xFF72A489);
   static const Color vermelhoOui = Color(0xFF980C31);
   static const Color roxoEudora = Color(0xFF683754);

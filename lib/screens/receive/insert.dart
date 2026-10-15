@@ -1,5 +1,3 @@
-import 'dart:js/js_wasm.dart';
-
 import 'package:boleto_digital/models/dt_model.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';

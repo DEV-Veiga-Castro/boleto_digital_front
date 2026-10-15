@@ -159,6 +159,273 @@ class _InitialSendScreen extends State<InitialSendScreen> {
     if (mounted) setState(() {});
   }
 
+  Widget seletorMotivoBaixa(){
+    if (selectedMovimentacao != "BAIXA") {
+      return Container(
+                      padding: EdgeInsets.all(20),
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      // height: viewHeight * 0.2,
+                      decoration: BoxDecoration(
+                        color: AppColors.cinzaContainer,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withAlpha(150),
+                            blurRadius: 4,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "OBSERVAÇÕES",
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                          TextField(
+                            controller: observacoesText,
+                            maxLines: 5,
+                            // expands: true,
+                            decoration: InputDecoration(
+                              hint: Text(
+                                "Adicione detalhes importantes sobre esta movimentação...",
+                                style: TextStyle(
+                                  color: Colors.grey.withAlpha(150),
+                                ),
+                              ),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+    } else {
+    return Container(
+                      padding: EdgeInsets.all(20),
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      // height: viewHeight * 0.2,
+                      decoration: BoxDecoration(
+                        color: AppColors.cinzaContainer,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withAlpha(150),
+                            blurRadius: 4,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            spacing: 12,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "MOTIVO DA BAIXA",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              Text(
+                                observacoesText.text,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          MenuAnchor(
+                            alignmentOffset: Offset(-(MediaQuery.of(context).size.width * 0.6), 10),
+                            style: MenuStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                            AppColors.cinzaDropdown,
+                            ),
+                            elevation: WidgetStatePropertyAll(2),
+                            shadowColor: WidgetStatePropertyAll(Colors.white),
+                        ),
+                        builder: (context, controller, child) {
+                            return ElevatedButton(
+                            onFocusChange: (value) {
+                                if (value) {
+                                setState(() {
+                                    iconTipoMov = Icons.keyboard_arrow_up;
+                                });
+                                } else {
+                                setState(() {
+                                    iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                                }
+                            },
+                            onPressed: () {
+                                if (controller.isOpen) {
+                                controller.close();
+                                setState(() {
+                                    iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                                } else {
+                                controller.open();
+                                setState(() {
+                                    iconTipoMov = Icons.keyboard_arrow_up;
+                                });
+                                }
+                            },
+                            style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                Colors.transparent,
+                                ),
+                                shadowColor: WidgetStatePropertyAll(
+                                Colors.transparent,
+                                ),
+                            ),
+                            child: Icon(
+                                iconTipoMov,
+                                size: 30,
+                                color: AppColors.verdeBoti,
+                            ),
+                            );
+                        },
+                        menuChildren: [
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "AVARIA";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "AVARIA",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "BRINDE";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "BRINDE",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "DEMONSTRADOR";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "DEMONSTRADOR",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "FLACONETE / AMOSTRA";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "FLACONETE / AMOSTRA",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "FURTO / ROUBO";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "FURTO / ROUBO",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "VENCIMENTO";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "VENCIMENTO",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                            MenuItemButton(
+                            onPressed: () {
+                                setState(() {
+                                observacoesText.text = "QUEBRA ACIDENTAL";
+                                iconTipoMov = Icons.keyboard_arrow_down;
+                                });
+                            },
+                            style: OutlinedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * 0.8, 40),
+                            ),
+                            child: const Text(
+                                "QUEBRA ACIDENTAL",
+                                style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                ),
+                            ),
+                            ),
+                        ],
+                      ),
+                      ],
+                      ),    
+                    );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewHeight = MediaQuery.of(context).size.height;
@@ -288,7 +555,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                             alignmentOffset: Offset(-(viewWidth * 0.6), 10),
                             style: MenuStyle(
                               backgroundColor: WidgetStatePropertyAll(
-                                Colors.white,
+                               AppColors.cinzaDropdown,
                               ),
                               elevation: WidgetStatePropertyAll(2),
                               shadowColor: WidgetStatePropertyAll(Colors.white),
@@ -337,6 +604,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                             menuChildren: [
                               MenuItemButton(
                                 onPressed: () {
+                                  observacoesText.clear();
                                   setState(() {
                                     selectedMovimentacao = "REGULAR";
                                     iconTipoMov = Icons.keyboard_arrow_down;
@@ -348,13 +616,14 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 child: const Text(
                                   "REGULAR",
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     fontSize: 14,
                                   ),
                                 ),
                               ),
                               MenuItemButton(
                                 onPressed: () {
+                                  observacoesText.clear();
                                   setState(() {
                                     selectedMovimentacao = "BAIXA";
                                     iconTipoMov = Icons.keyboard_arrow_down;
@@ -383,13 +652,14 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 child: const Text(
                                   "BAIXA",
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     fontSize: 14,
                                   ),
                                 ),
                               ),
                               MenuItemButton(
                                 onPressed: () {
+                                  observacoesText.clear();
                                   setState(() {
                                     selectedMovimentacao = "VENDA";
                                     iconTipoMov = Icons.keyboard_arrow_down;
@@ -401,7 +671,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                 child: const Text(
                                   "VENDA",
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -459,7 +729,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                             alignmentOffset: Offset(-(viewWidth * 0.6), 10),
                             style: MenuStyle(
                               backgroundColor: WidgetStatePropertyAll(
-                                Colors.white,
+                                AppColors.cinzaDropdown,
                               ),
                               elevation: WidgetStatePropertyAll(2),
                               shadowColor: WidgetStatePropertyAll(Colors.white),
@@ -530,7 +800,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                                     child: Text(
                                       "${filial.pdv} | ${filial.name}",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color: Colors.white,
                                         fontSize: 14,
                                       ),
                                     ),
@@ -599,46 +869,7 @@ class _InitialSendScreen extends State<InitialSendScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      width: viewWidth * 0.9,
-                      // height: viewHeight * 0.2,
-                      decoration: BoxDecoration(
-                        color: AppColors.cinzaContainer,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withAlpha(150),
-                            blurRadius: 4,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "OBSERVAÇÕES",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                          TextField(
-                            controller: observacoesText,
-                            maxLines: 5,
-                            // expands: true,
-                            decoration: InputDecoration(
-                              hint: Text(
-                                "Adicione detalhes importantes sobre esta movimentação...",
-                                style: TextStyle(
-                                  color: Colors.grey.withAlpha(150),
-                                ),
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    seletorMotivoBaixa(),
                     SizedBox(
                       width: viewWidth * 0.8,
                       child: ElevatedButton(

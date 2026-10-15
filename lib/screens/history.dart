@@ -740,9 +740,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     final Map<String, String> statusList = {
       "em_andamento": "EM ANDAMENTO",
-      "em_conferencia": "EM CONFERÊNCIA",
       "conferida": "CONFERIDA",
-      "nf_lancada": "NF LANÇADA",
       "finalizada": "FINALIZADA",
       "cancelada": "CANCELADA",
     };
@@ -978,7 +976,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 // alignmentOffset: Offset(dx, dy),
                                 style: MenuStyle(
                                   backgroundColor: WidgetStatePropertyAll(
-                                    Colors.white,
+                                    AppColors.cinzaDropdown,
                                   ),
                                   elevation: WidgetStatePropertyAll(2),
                                   shadowColor: WidgetStatePropertyAll(
@@ -1023,7 +1021,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     child: Text(
                                       item.value,
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
