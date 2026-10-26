@@ -3,6 +3,7 @@ import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -139,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                  color: AppColors.cinzaContainer,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -178,6 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       decoration: BoxDecoration(
+                        border: BoxBorder.all(
+                          color: AppColors.inputBorder,
+                          width: 2,
+                        ),
                         color: Colors.white,
                         borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
@@ -192,9 +197,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         decoration: const InputDecoration(
                           hintText: 'nome.sobrenome',
+                          hintStyle: TextStyle(color: Color.fromARGB(150, 94, 94, 94)),
                           label: Text(
-                            'Usuário',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            'E-mail ou Usuário',
+                            style: TextStyle(color: Color.fromARGB(255, 94, 94, 94), fontSize: 16),
                           ),
                           border: InputBorder.none,
                           filled: true,
@@ -206,6 +212,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     Container(
                       decoration: BoxDecoration(
+                        border: BoxBorder.all(
+                          color: AppColors.inputBorder,
+                          width: 2,
+                        ),
                         color: Colors.white,
                         borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
@@ -221,9 +231,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         decoration: const InputDecoration(
                           hintText: '**********',
+                          hintStyle: TextStyle(color: Color.fromARGB(150, 94, 94, 94)),
                           label: Text(
                             'Senha',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            style: TextStyle(color: Color.fromARGB(255, 94, 94, 94), fontSize: 16),
                           ),
                           border: InputBorder.none,
                           filled: true,
@@ -238,13 +249,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.only(right: 32.0, top: 8.0),
                           child: TextButton(
-                            onPressed: () {
-                              // Handle forgot password action
+                            onPressed: () async {
+                              final url = Uri.parse(
+                                "https://erp.veigacastro.dev.br/reset",
+                              );
+
+                              if (!await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                throw Exception("Não foi possível abrir o link: $url");
+                              }
                             },
                             child: const Text(
                               'Esqueceu sua senha?',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: Color.fromARGB(255, 94, 94, 94),
                                 fontSize: 14,
                               ),
                             ),

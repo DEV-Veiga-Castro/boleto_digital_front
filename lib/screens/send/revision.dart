@@ -5,6 +5,7 @@ import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/services/printer/print_bf.dart';
 import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
+import 'package:boleto_digital/widgets/app_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
@@ -180,15 +181,8 @@ class _RevisionScreenState extends State<RevisionScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 33, 33, 33),
-                Color.fromARGB(255, 18, 18, 18),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -200,7 +194,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
           children: [
             Text(
               'Passo 03 de 03',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
+              style: TextStyle(fontSize: 14),
             ),
             Text('Revisão'),
           ],
@@ -250,11 +244,11 @@ class _RevisionScreenState extends State<RevisionScreen> {
                     padding: EdgeInsets.all(20),
                     width: viewWidth * 0.9,
                     decoration: BoxDecoration(
-                      color: AppColors.cinzaContainer,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.roxoEudora,
+                          color: AppColors.roxoEudora.withAlpha(90),
                           blurRadius: 4,
                           offset: Offset(0, 4),
                         ),
@@ -274,7 +268,12 @@ class _RevisionScreenState extends State<RevisionScreen> {
                                 Text(
                                   "ID DO BOLETO",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -290,7 +289,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
                             ),
                             Icon(
                               Icons.inventory_2_outlined,
-                              color: Colors.grey.withAlpha(50),
+                              color: const Color.fromARGB(100, 94, 94, 94),
                               size: 60,
                             ),
                           ],
@@ -306,14 +305,18 @@ class _RevisionScreenState extends State<RevisionScreen> {
                                 Text(
                                   "ORIGEM",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
                                   "${transfer?.lojaOrigem == 1 ? "Escritório" : transfer?.lojaOrigem}",
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -332,14 +335,18 @@ class _RevisionScreenState extends State<RevisionScreen> {
                                 Text(
                                   "DESTINO",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
                                   "${transfer?.lojaDestino == 1 ? "Escritório" : transfer?.lojaDestino}",
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -363,11 +370,11 @@ class _RevisionScreenState extends State<RevisionScreen> {
                           padding: EdgeInsets.all(12),
                           width: viewWidth * 0.4,
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.roxoEudora,
+                                color: AppColors.roxoEudora.withAlpha(90),
                                 blurRadius: 4,
                                 offset: Offset(0, 4),
                               ),
@@ -380,14 +387,13 @@ class _RevisionScreenState extends State<RevisionScreen> {
                               Text(
                                 "MOVIMENTAÇÃO",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${transfer?.tipoTransferencia}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -399,11 +405,11 @@ class _RevisionScreenState extends State<RevisionScreen> {
                           padding: EdgeInsets.all(12),
                           width: viewWidth * 0.4,
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.roxoEudora,
+                                color: AppColors.roxoEudora.withAlpha(90),
                                 blurRadius: 4,
                                 offset: Offset(0, 4),
                               ),
@@ -416,14 +422,13 @@ class _RevisionScreenState extends State<RevisionScreen> {
                               Text(
                                 "TOTAL DE ITENS",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${transferProvider.getTotalQuantitySent()} Itens",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -444,12 +449,18 @@ class _RevisionScreenState extends State<RevisionScreen> {
                       children: [
                         Text(
                           "ITENS DETALHADOS",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 94, 94, 94),
+                            fontSize: 14,
+                          ),
                         ),
                         SizedBox(),
                         Text(
                           "${itens.length} SKUs",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 94, 94, 94),
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
@@ -466,7 +477,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -477,22 +488,21 @@ class _RevisionScreenState extends State<RevisionScreen> {
                         ],
                       ),
                       child: Material(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         child: ListTile(
                           leading: Text(
                             '${item.productID}',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(fontSize: 16),
                           ),
                           title: Text(
                             '${item.description}',
                             maxLines: 1,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            style: TextStyle(fontSize: 18),
                           ),
                           trailing: Text(
                             '${item.quantitySent}x',
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -515,7 +525,8 @@ class _RevisionScreenState extends State<RevisionScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            AppPrimaryButton(
+              label: 'CONFIRMAR',
               onPressed: _isLoading
                   ? null
                   : () async {
@@ -533,10 +544,9 @@ class _RevisionScreenState extends State<RevisionScreen> {
                         }
                       }
                     },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.verdeBoti,
-                minimumSize: Size(viewWidth * 0.8, 40),
-              ),
+              icon: _isLoading ? null : Icons.arrow_right_outlined,
+              backgroundColor: AppColors.verdeBoti,
+              minimumSize: Size(viewWidth * 0.8, 40),
               child: _isLoading
                   ? CircularProgressIndicator(
                       strokeWidth: 2,

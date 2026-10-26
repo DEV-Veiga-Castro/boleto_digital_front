@@ -63,7 +63,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void dispose() {
     _pageController.dispose();
-    _transferProvider.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _transferProvider.clear();
+    });
     super.dispose();
   }
 
@@ -210,7 +212,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 Text(
                   "Tem certeza que deseja cancelar essa movimentação?",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -220,9 +222,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 "Voltar",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 16
+                ),
               ),
             ),
             TextButton(
@@ -256,7 +261,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: 250,
               padding: EdgeInsets.all(40.0),
               decoration: BoxDecoration(
-                color: AppColors.cinzaContainer,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -277,14 +282,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               Text(
                                 "CÓDIGO: ",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${transferProvider.transfer!.items.firstWhere((e) => e.productID == item.productID).productID}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                 ),
                               ),
@@ -298,7 +302,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.fade,
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
@@ -309,7 +313,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   maxLines: 2,
                                   overflow: TextOverflow.fade,
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -404,7 +407,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: Text(
                           "${transferProvider.getQuantitySent(item.productID!)}",
                           style: TextStyle(
-                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -416,8 +418,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             productID: item.productID!,
                             accessToken: accessToken!,
                           );
-
-                          print("PASSEI");
 
                           if (!success && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -459,7 +459,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: 350,
               padding: EdgeInsets.all(40),
               decoration: BoxDecoration(
-                color: AppColors.cinzaContainer,
+                color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -477,7 +477,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               Text(
                                 "VC-${transfer.id}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -527,7 +526,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   Text(
                                     "Destino: ",
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: const Color.fromARGB(255, 94, 94, 94),
                                       fontSize: 14,
                                     ),
                                   ),
@@ -542,7 +541,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
                                         ).name}",
                                         style: TextStyle(
-                                          color: Colors.white,
                                           fontSize: 16,
                                         ),
                                       ),
@@ -558,14 +556,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   Text(
                                     "Origem: ",
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: const Color.fromARGB(255, 94, 94, 94),
                                       fontSize: 14,
                                     ),
                                   ),
                                   Text(
                                     "${transfer.lojaOrigem}",
                                     style: TextStyle(
-                                      color: Colors.white,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -590,14 +587,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 Text(
                                   "ITENS",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(255, 94, 94, 94),
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
                                   "ENV | REC",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(255, 94, 94, 94),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -619,7 +616,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.cinzaContainer.withAlpha(100),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surface.withAlpha(100),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
@@ -630,13 +629,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ],
                               ),
                               child: Material(
-                                color: AppColors.cinzaContainer,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(12),
                                 child: ListTile(
                                   leading: Text(
                                     '${item.productID}',
                                     style: TextStyle(
-                                      color: Colors.white,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -644,14 +642,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     '${item.description}',
                                     maxLines: 1,
                                     style: TextStyle(
-                                      color: Colors.white,
                                       fontSize: 18,
                                     ),
                                   ),
                                   trailing: Text(
                                     '${item.quantitySent}x | ${item.quantityReceived}x',
                                     style: TextStyle(
-                                      color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -756,7 +752,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: 450,
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.cinzaContainer,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -779,7 +775,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             Text(
                               "FILTRAGEM",
                               style: TextStyle(
-                                color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2,
@@ -787,7 +782,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             Icon(
                               Icons.filter_list_rounded,
-                              color: Colors.white,
                               size: 25,
                             ),
                           ],
@@ -825,6 +819,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary
                               ),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -832,7 +827,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.cinzaContainer,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -849,14 +844,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       "Data Inicial",
                                       style: TextStyle(
-                                        color: Colors.grey,
+                                        color: const Color.fromARGB(255, 94, 94, 94),
                                         fontSize: 14,
                                       ),
                                     ),
                                     Text(
                                       '${dataInicial!.day.toString().length < 2 ? '0${dataInicial!.day}' : '${dataInicial!.day}'}/${dataInicial!.month.toString().length < 2 ? '0${dataInicial!.month}' : '${dataInicial!.month}'}/${dataInicial!.year}',
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -893,6 +887,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary
                               ),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -900,7 +895,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.cinzaContainer,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -917,14 +912,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       "Data Final",
                                       style: TextStyle(
-                                        color: Colors.grey,
+                                        color: const Color.fromARGB(255, 94, 94, 94),
                                         fontSize: 14,
                                       ),
                                     ),
                                     Text(
                                       '${dataFinal!.day.toString().length < 2 ? '0${dataFinal!.day}' : '${dataFinal!.day}'}/${dataFinal!.month.toString().length < 2 ? '0${dataFinal!.month}' : '${dataFinal!.month}'}/${dataFinal!.year}',
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -939,7 +933,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           width: viewWidth * 0.78,
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.secondary,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -959,14 +953,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   Text(
                                     "Status da Movimentação:",
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: const Color.fromARGB(255, 94, 94, 94),
                                       fontSize: 14,
                                     ),
                                   ),
                                   Text(
                                     statusView ?? "",
                                     style: TextStyle(
-                                      color: Colors.white,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -976,7 +969,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 // alignmentOffset: Offset(dx, dy),
                                 style: MenuStyle(
                                   backgroundColor: WidgetStatePropertyAll(
-                                    AppColors.cinzaDropdown,
+                                    Theme.of(context).colorScheme.secondary,
                                   ),
                                   elevation: WidgetStatePropertyAll(2),
                                   shadowColor: WidgetStatePropertyAll(
@@ -999,6 +992,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     style: OutlinedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
+                                      foregroundColor: Theme.of(context).colorScheme.onPrimary
                                     ),
                                     child: Icon(
                                       Icons.arrow_drop_down,
@@ -1021,7 +1015,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     child: Text(
                                       item.value,
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -1039,7 +1032,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -1055,7 +1048,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Código do Produto",
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: const Color.fromARGB(255, 94, 94, 94)),
                             ),
                           ),
                         ),
@@ -1067,7 +1060,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -1083,7 +1076,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Número da NF",
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(color: const Color.fromARGB(255, 94, 94, 94)),
                             ),
                           ),
                         ),
@@ -1184,7 +1177,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("${data!.first()}")));
+      ).showSnackBar(SnackBar(content: Text("${data?.first()}")));
     }
 
     filterTransferID.clear();
@@ -1268,15 +1261,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                // Color.fromARGB(255, 113, 113, 133),
-                Color.fromARGB(255, 33, 33, 33),
-                Color.fromARGB(255, 18, 18, 18),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
         ),
@@ -1301,7 +1286,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             padding: EdgeInsets.only(right: 16),
             icon: const Icon(
               Icons.help_outline_rounded,
-              color: Colors.white,
               size: 32,
             ),
           ),
@@ -1337,6 +1321,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           style: OutlinedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
                             padding: EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -1349,7 +1334,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             width: viewWidth * 0.4,
                             decoration: BoxDecoration(
-                              color: AppColors.cinzaContainer,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
@@ -1368,7 +1353,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       "Data Inicial",
                                       style: TextStyle(
-                                        color: Colors.grey,
+                                        color: const Color.fromARGB(255, 94, 94, 94),
                                         fontSize: 14,
                                       ),
                                     ),
@@ -1380,7 +1365,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       '${dataInicial!.day.toString().length < 2 ? '0${dataInicial!.day}' : '${dataInicial!.day}'}/${dataInicial!.month.toString().length < 2 ? '0${dataInicial!.month}' : '${dataInicial!.month}'}/${dataInicial!.year}',
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -1406,6 +1390,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           style: OutlinedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
                             padding: EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -1418,7 +1403,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             width: viewWidth * 0.4,
                             decoration: BoxDecoration(
-                              color: AppColors.cinzaContainer,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
@@ -1437,7 +1422,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       "Data Final",
                                       style: TextStyle(
-                                        color: Colors.grey,
+                                        color: const Color.fromARGB(255, 94, 94, 94),
                                         fontSize: 14,
                                       ),
                                     ),
@@ -1449,7 +1434,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     Text(
                                       '${dataFinal!.day.toString().length < 2 ? '0${dataFinal!.day}' : '${dataFinal!.day}'}/${dataFinal!.month.toString().length < 2 ? '0${dataFinal!.month}' : '${dataFinal!.month}'}/${dataFinal!.year}',
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -1477,7 +1461,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             // height: viewHeight * 0.2,
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppColors.cinzaContainer,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
                                 bottomLeft: Radius.circular(12),
@@ -1560,7 +1544,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.secondary,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -1571,7 +1555,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ],
                           ),
                           child: Material(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             child: ElevatedButton(
                               onPressed: () {
@@ -1583,6 +1567,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -1597,7 +1582,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       Text(
                                         "VC-${item.id}",
                                         style: TextStyle(
-                                          color: Colors.white,
                                           fontSize: 18,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -1612,7 +1596,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                               orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
                                             ).name}",
                                             style: TextStyle(
-                                              color: Colors.grey,
+                                              color: const Color.fromARGB(255, 94, 94, 94),
                                               fontSize: 14,
                                             ),
                                           ),
@@ -1628,7 +1612,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             "${DateTime.parse(item.createdAt!).year} às "
                                             "${(DateTime.parse(item.createdAt!).hour - 3).toString().padLeft(2, '0')}:${DateTime.parse(item.createdAt!).minute.toString().padLeft(2, '0')}",
                                             style: TextStyle(
-                                              color: Colors.white,
                                               fontSize: 14,
                                               letterSpacing: 1.5,
                                             ),

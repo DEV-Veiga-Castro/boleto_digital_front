@@ -96,7 +96,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
               height: 250,
               padding: EdgeInsets.all(40.0),
               decoration: BoxDecoration(
-                color: AppColors.cinzaContainer,
+                color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -117,14 +117,13 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                               Text(
                                 "CÓDIGO: ",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${item.productID}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                 ),
                               ),
@@ -135,7 +134,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                               Text(
                                 "DESCRIÇÃO: ",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
@@ -146,7 +145,6 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                                   maxLines: 2,
                                   overflow: TextOverflow.fade,
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -202,7 +200,6 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                         child: Text(
                           "${transferProvider.getQuantityReceived(item.productID!)}",
                           style: TextStyle(
-                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -360,15 +357,8 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 33, 33, 33),
-                Color.fromARGB(255, 18, 18, 18),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -378,10 +368,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Passo 02 de 03',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
-            ),
+            Text('Passo 02 de 03', style: TextStyle(fontSize: 14)),
             Text('Inserção de Itens'),
           ],
         ),
@@ -426,79 +413,102 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                 // SizedBox(height: 10),
                 SliverToBoxAdapter(child: SizedBox(height: 20)),
                 SliverToBoxAdapter(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    width: viewWidth * 0.8,
-                    height: viewHeight * 0.2,
-                    // padding: EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.cinzaContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha(150),
-                          blurRadius: 4,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        if (userWantsScanning) {
+                          await scannerController.stop();
+                        } else {
+                          await scannerController.start();
+                        }
+                        setState(() {
+                          userWantsScanning = !userWantsScanning;
+                        });
+                      } catch (e) {
+                        debugPrint('Erro ao alternar scanner: $e');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.transparent,
+                      elevation: 0,
+                      splashFactory: NoSplash.splashFactory,
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadiusGeometry.circular(12),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          MobileScanner(
-                            controller: scannerController,
-                            onDetect: (capture) async {
-                              await _beepPlayer();
-
-                              final barcode = capture.barcodes.first.rawValue;
-                              if (barcode == null || barcode == lastCode) {
-                                return;
-                              }
-                              try {
-                                await scannerController.stop();
-                                await insertItens(int.parse(barcode));
-
-                                Future.delayed(
-                                  const Duration(seconds: 1),
-                                  () async {
-                                    if (!mounted) return;
-                                    if (!userWantsScanning) return;
-                                    try {
-                                      await scannerController.start();
-                                    } catch (e) {
-                                      debugPrint(
-                                        'Erro ao reiniciar scanner: $e',
-                                      );
-                                    }
-                                  },
-                                );
-                              } catch (e) {
-                                debugPrint('Erro ao parar scanner: $e');
-                              }
-                            },
-                          ),
-                          // overlay por cima, sem desmontar o MobileScanner
-                          ValueListenableBuilder<MobileScannerState>(
-                            valueListenable: scannerController,
-                            builder: (context, state, child) {
-                              if (state.isRunning) {
-                                return const SizedBox.shrink();
-                              } else {
-                                return Container(
-                                  color: Colors.black.withAlpha(50),
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.videocam_off,
-                                    color: Colors.white54,
-                                    size: 40,
-                                  ),
-                                );
-                              }
-                            },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      width: viewWidth * 0.8,
+                      height: viewHeight * 0.2,
+                      // padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withAlpha(150),
+                            blurRadius: 4,
+                            offset: Offset(0, 4),
                           ),
                         ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(12),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            MobileScanner(
+                              controller: scannerController,
+                              onDetect: (capture) async {
+                                await _beepPlayer();
+
+                                final barcode = capture.barcodes.first.rawValue;
+                                if (barcode == null || barcode == lastCode) {
+                                  return;
+                                }
+                                try {
+                                  await scannerController.stop();
+                                  await insertItens(int.parse(barcode));
+
+                                  Future.delayed(
+                                    const Duration(seconds: 1),
+                                    () async {
+                                      if (!mounted) return;
+                                      if (!userWantsScanning) return;
+                                      try {
+                                        await scannerController.start();
+                                      } catch (e) {
+                                        debugPrint(
+                                          'Erro ao reiniciar scanner: $e',
+                                        );
+                                      }
+                                    },
+                                  );
+                                } catch (e) {
+                                  debugPrint('Erro ao parar scanner: $e');
+                                }
+                              },
+                            ),
+                            // overlay por cima, sem desmontar o MobileScanner
+                            ValueListenableBuilder<MobileScannerState>(
+                              valueListenable: scannerController,
+                              builder: (context, state, child) {
+                                if (state.isRunning) {
+                                  return const SizedBox.shrink();
+                                } else {
+                                  return Container(
+                                    color: Colors.black.withAlpha(50),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.videocam_off,
+                                      color: Colors.white54,
+                                      size: 40,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -517,7 +527,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                           // height: viewHeight * 0.2,
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(12),
                               bottomLeft: Radius.circular(12),
@@ -592,13 +602,16 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                       children: [
                         Text(
                           "ITENS",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 94, 94, 94),
+                            fontSize: 16,
+                          ),
                         ),
                         SizedBox(),
                         Text(
                           "${itens.length} SKUs",
                           style: TextStyle(
-                            color: const Color.fromRGBO(158, 158, 158, 1),
+                            color: const Color.fromRGBO(94, 94, 94, 1),
                             fontSize: 16,
                           ),
                         ),
@@ -617,7 +630,7 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -628,17 +641,17 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                         ],
                       ),
                       child: Material(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         child: ListTile(
                           leading: Text(
                             '${item.productID}',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(fontSize: 16),
                           ),
                           title: Text(
                             '${item.description}',
                             maxLines: 1,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            style: TextStyle(fontSize: 18),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -654,7 +667,6 @@ class _InsertReceiveScreen extends State<InsertReceiveScreen> {
                               Text(
                                 "${item.quantityReceived}x",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),

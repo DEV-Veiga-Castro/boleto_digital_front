@@ -49,7 +49,18 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
       setState(() {});
     }
 
+    final isTokenValid = await ClientStorage().isAccessTokenValid();
+
+    if (!isTokenValid) {
+      await ClientStorage().clearTokens();
+
+      Navigator.pushReplacementNamed(context, '/login');
+
+      return;
+    }
+
     String? accessToken = await _storage.getAccessToken();
+
     final user = context.read<UserProvider>().user;
 
     final dtService = await DigitalTransferService().listMovimentacoesToReceive(
@@ -84,7 +95,6 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
             "Receber Movimentação",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -93,7 +103,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
             width: 120,
             height: 300,
             decoration: BoxDecoration(
-              color: AppColors.cinzaContainer,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -232,15 +242,8 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
           ),
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 33, 33, 33),
-                Color.fromARGB(255, 18, 18, 18),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -252,11 +255,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
           children: [
             Text(
               "Receber Movimentação",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -287,7 +286,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                             // height: viewHeight * 0.2,
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppColors.cinzaContainer,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
                                 bottomLeft: Radius.circular(12),
@@ -374,8 +373,8 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.black
-                                : AppColors.cinzaContainer,
+                                ? AppColors.verdeBoti
+                                : Theme.of(context).colorScheme.secondary,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -401,7 +400,6 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                     Text(
                                       "VC-${item.id}",
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -417,10 +415,7 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                           ).name}",
                                           maxLines: 1,
                                           overflow: TextOverflow.fade,
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 14,
-                                          ),
+                                          style: TextStyle(fontSize: 14),
                                         ),
                                       ),
                                     ),
@@ -429,7 +424,6 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                       " de ${DateFormat('MMMM').format(DateTime.parse(item.createdAt!))} de "
                                       "${DateTime.parse(item.createdAt!).year} às "
                                       "${DateTime.parse(item.createdAt!).hour - 3}:${DateTime.parse(item.createdAt!).minute}",
-                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ],
                                 ),
@@ -440,7 +434,6 @@ class _ListReceiveScreen extends State<ListReceiveScreen> {
                                     Text(
                                       "${item.tipoTransferencia?.toUpperCase()}",
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 18,
                                       ),

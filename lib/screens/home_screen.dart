@@ -5,6 +5,8 @@ import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/services/routes/user_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
+import 'package:boleto_digital/theme/app_theme_controller.dart';
+import 'package:boleto_digital/widgets/app_surface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_balloons/widgets/balloon_overlay.dart';
 import 'package:provider/provider.dart';
@@ -212,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             orElse: () => Branch(pdv: -1, name: "Loja não encontrada", address: "", city: "", cnpj: "", state: ""),
                           ).name}",
                           maxLines: 1,
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                       titleAlignment: ListTileTitleAlignment.center,
@@ -220,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         alignmentOffset: Offset(-(viewHeight * 0.2), 0),
                         style: MenuStyle(
                           backgroundColor: WidgetStatePropertyAll(
-                            AppColors.cinzaContainer,
+                            Theme.of(context).colorScheme.surface,
                           ),
                         ),
                         builder: (context, controller, child) {
@@ -265,7 +267,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               "${branches.pdv} | ${branches.name}",
                               textAlign: TextAlign.left,
                               style: TextStyle(
-                                color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -338,15 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  // Color.fromARGB(255, 113, 113, 133),
-                  Color.fromARGB(255, 33, 33, 33),
-                  Color.fromARGB(255, 18, 18, 18),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
           ),
@@ -403,13 +396,25 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           actions: [
             IconButton(
+              tooltip: Theme.of(context).brightness == Brightness.dark
+                  ? 'Ativar tema claro'
+                  : 'Ativar tema escuro',
+              onPressed: () => context.read<AppThemeController>().toggle(),
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+              ),
+            ),
+            SizedBox(width: 15,),
+            IconButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/history');
               },
               padding: EdgeInsets.only(right: 16),
               icon: const Icon(
                 Icons.history_rounded,
-                color: Colors.white,
+                // color: Colors.white,
                 size: 32,
               ),
             ),
@@ -442,8 +447,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
-                                    foregroundColor: Colors.transparent,
                                     shadowColor: Colors.transparent,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
                                     // shape: RoundedRectangleBorder(
                                     //   borderRadius: BorderRadius.circular(20),
                                     // ),
@@ -456,7 +463,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: viewWidth * 0.8,
                                     height: viewHeight * 0.2,
                                     decoration: BoxDecoration(
-                                      color: AppColors.cinzaContainer,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
                                       borderRadius: BorderRadius.circular(20),
                                       boxShadow: [
                                         BoxShadow(
@@ -488,7 +497,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Text(
                                                 "ENVIAR",
                                                 style: TextStyle(
-                                                  color: Colors.white,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -496,7 +504,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Text(
                                                 "MOVIMENTAÇÃO",
                                                 style: TextStyle(
-                                                  color: Colors.white,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -519,12 +526,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
                                     shadowColor: Colors.transparent,
+                                    overlayColor: Colors.transparent,
+                                    surfaceTintColor: Colors.transparent,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
                                   ),
                                   child: Container(
                                     width: viewWidth * 0.8,
                                     height: viewHeight * 0.2,
                                     decoration: BoxDecoration(
-                                      color: AppColors.cinzaContainer,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
                                       borderRadius: BorderRadius.circular(20),
                                       boxShadow: [
                                         BoxShadow(
@@ -556,7 +570,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Text(
                                                 "RECEBER",
                                                 style: TextStyle(
-                                                  color: Colors.white,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -564,7 +577,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Text(
                                                 "MOVIMENTAÇÃO",
                                                 style: TextStyle(
-                                                  color: Colors.white,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -581,92 +593,76 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Container(
+                                    AppSurface(
                                       width: viewWidth * 0.35,
                                       height: viewHeight * 0.15,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.cinzaContainer,
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.verdeBoti
-                                                .withAlpha(200),
-                                            blurRadius: 4,
-                                            offset: Offset(0, 4),
+                                      borderRadius: BorderRadius.circular(20),
+                                      elevation: 3,
+                                      padding: const EdgeInsets.all(4),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "EM TRÂNSITO",
+                                            style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                94,
+                                                94,
+                                                94,
+                                              ),
+                                              fontSize: 12,
+                                            ),
                                           ),
+                                          SizedBox(),
+                                          Text(
+                                            _countInTransit.toString(),
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          SizedBox(),
                                         ],
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "EM TRÂNSITO",
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            SizedBox(),
-                                            Text(
-                                              _countInTransit.toString(),
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(),
-                                          ],
-                                        ),
                                       ),
                                     ),
-                                    Container(
+                                    AppSurface(
                                       width: viewWidth * 0.35,
                                       height: viewHeight * 0.15,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.cinzaContainer,
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.verdeBoti
-                                                .withAlpha(200),
-                                            blurRadius: 4,
-                                            offset: Offset(0, 4),
+                                      borderRadius: BorderRadius.circular(20),
+                                      elevation: 3,
+                                      padding: const EdgeInsets.all(4),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "RECEBIDAS",
+                                            style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                255,
+                                                94,
+                                                94,
+                                                94,
+                                              ),
+                                              fontSize: 12,
+                                            ),
                                           ),
+                                          SizedBox(),
+                                          Text(
+                                            _countReceived.toString(),
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          SizedBox(),
                                         ],
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "RECEBIDAS",
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            SizedBox(),
-                                            Text(
-                                              _countReceived.toString(),
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(),
-                                          ],
-                                        ),
                                       ),
                                     ),
                                   ],

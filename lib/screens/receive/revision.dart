@@ -3,6 +3,7 @@ import 'package:boleto_digital/services/auth_service.dart';
 import 'package:boleto_digital/services/client_storage.dart';
 import 'package:boleto_digital/services/routes/dt_service.dart';
 import 'package:boleto_digital/theme/app_colors.dart';
+import 'package:boleto_digital/widgets/app_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -67,10 +68,10 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
+            shadowColor: AppColors.vermelhoOui,
             title: const Text(
               "Movimentação com Discrepâncias!",
               style: TextStyle(
-                color: Colors.yellow,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -81,7 +82,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                 children: [
                   Text(
                     "A movimentação contém discrepâncias entre os itens enviados e os recebidos, tem certeza que deseja confirmar o recebimento?",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ],
               ),
@@ -94,17 +95,17 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                 },
                 child: const Text(
                   "Voltar",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
-              SizedBox(width: 30,),
+              SizedBox(width: 30),
               TextButton(
                 onPressed: () async {
                   await updateTranfer();
                 },
                 child: const Text(
                   "Confirmar",
-                  style: TextStyle(color: Colors.red, fontSize: 16),
+                  style: TextStyle(color: Colors.red, fontSize: 18),
                 ),
               ),
             ],
@@ -127,21 +128,21 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
         accessToken: accessToken!,
         transferID: provider.transfer!.uuid!,
         digitalItems: provider.transfer!.items,
-        model: "receive"
+        model: "receive",
       );
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(update.message)));
 
-      bool hasDiscrepancies = await verifyDiscrepancy(); 
+      bool hasDiscrepancies = await verifyDiscrepancy();
 
       final response = await DigitalTransferService().updateTransferStatus(
         accessToken: accessToken,
         transferID: provider.transfer!.uuid!,
         status: 'conferida',
         model: 'receive',
-        hasDiscrepancies: hasDiscrepancies
+        hasDiscrepancies: hasDiscrepancies,
       );
 
       ScaffoldMessenger.of(
@@ -179,15 +180,8 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 33, 33, 33),
-                Color.fromARGB(255, 18, 18, 18),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -197,10 +191,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Passo 03 de 03',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
-            ),
+            Text('Passo 03 de 03', style: TextStyle(fontSize: 14)),
             Text('Revisão'),
           ],
         ),
@@ -249,11 +240,11 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                     padding: EdgeInsets.all(20),
                     width: viewWidth * 0.9,
                     decoration: BoxDecoration(
-                      color: AppColors.cinzaContainer,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.roxoEudora,
+                          color: AppColors.roxoEudora.withAlpha(90),
                           blurRadius: 4,
                           offset: Offset(0, 4),
                         ),
@@ -273,7 +264,12 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 Text(
                                   "ID DO BOLETO",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -289,7 +285,12 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                             ),
                             Icon(
                               Icons.inventory_2_outlined,
-                              color: Colors.grey.withAlpha(50),
+                              color: Color.fromARGB(
+                                255,
+                                94,
+                                94,
+                                94,
+                              ).withAlpha(50),
                               size: 60,
                             ),
                           ],
@@ -305,14 +306,18 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 Text(
                                   "ORIGEM",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
                                   "${transfer?.lojaOrigem == 1 ? "Escritório" : transfer?.lojaOrigem}",
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -331,14 +336,18 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                                 Text(
                                   "DESTINO",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      94,
+                                      94,
+                                      94,
+                                    ),
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
                                   "${transfer?.lojaDestino == 1 ? "Escritório" : transfer?.lojaDestino}",
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -362,11 +371,11 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                           padding: EdgeInsets.all(12),
                           width: viewWidth * 0.4,
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.roxoEudora,
+                                color: AppColors.roxoEudora.withAlpha(90),
                                 blurRadius: 4,
                                 offset: Offset(0, 4),
                               ),
@@ -379,14 +388,13 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                               Text(
                                 "MOVIMENTAÇÃO",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: const Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${transfer?.tipoTransferencia?.toUpperCase()}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -398,11 +406,11 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                           padding: EdgeInsets.all(12),
                           width: viewWidth * 0.4,
                           decoration: BoxDecoration(
-                            color: AppColors.cinzaContainer,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.roxoEudora,
+                                color: AppColors.roxoEudora.withAlpha(90),
                                 blurRadius: 4,
                                 offset: Offset(0, 4),
                               ),
@@ -415,14 +423,13 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                               Text(
                                 "TOTAL DE ITENS",
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Color.fromARGB(255, 94, 94, 94),
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
                                 "${transferProvider.getTotalQuantityReceived()} ${transferProvider.getTotalQuantityReceived() > 1 ? "Itens" : "Item"}",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -443,12 +450,18 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                       children: [
                         Text(
                           "ITENS DETALHADOS",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 94, 94, 94),
+                            fontSize: 14,
+                          ),
                         ),
                         SizedBox(),
                         Text(
                           "${itens.length} SKUs",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 94, 94, 94),
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
@@ -465,7 +478,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -476,17 +489,17 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                         ],
                       ),
                       child: Material(
-                        color: AppColors.cinzaContainer,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         child: ListTile(
                           leading: Text(
                             '${item.productID}',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(fontSize: 16),
                           ),
                           title: Text(
                             '${item.description}',
                             maxLines: 1,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            style: TextStyle(fontSize: 18),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -502,7 +515,6 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                               Text(
                                 '${item.quantityReceived}x',
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -527,31 +539,14 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            AppPrimaryButton(
+              label: 'CONFIRMAR',
               onPressed: () async {
                 await updateMovimentacao();
               },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.verdeBoti,
-                minimumSize: Size(viewWidth * 0.8, 40),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "CONFIRMAR",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_right_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ],
-              ),
+              icon: Icons.arrow_right_outlined,
+              backgroundColor: AppColors.verdeBoti,
+              minimumSize: Size(viewWidth * 0.8, 40),
             ),
           ],
         ),

@@ -49,7 +49,9 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
 
   @override
   void dispose() {
-    _transferProvider.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _transferProvider.clear();
+    });
     super.dispose();
   }
 
@@ -108,15 +110,8 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
           flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 33, 33, 33),
-                  Color.fromARGB(255, 18, 18, 18),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondary,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -128,7 +123,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
             children: [
               Text(
                 'Passo 01 de 03',
-                style: TextStyle(fontSize: 14, color: Colors.white70),
+                style: TextStyle(fontSize: 14),
               ),
               Text('Informação Inicial'),
             ],
@@ -182,7 +177,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                         // height: viewHeight * 0.1,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
@@ -204,13 +199,12 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                   "TIPO DE MOVIMENTAÇÃO",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(255, 94, 94, 94),
                                   ),
                                 ),
                                 Text(
                                   selectedMovimentacao,
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -221,7 +215,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                               child: Icon(
                                 Icons.lock_outline_rounded,
                                 size: 30,
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 94, 94, 94),
                               ),
                             ),
                           ],
@@ -232,7 +226,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                         width: viewWidth * 0.9,
                         // height: viewHeight * 0.1,
                         decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
@@ -254,7 +248,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                   "LOJA DE ORIGEM",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(255, 94, 94, 94),
                                   ),
                                 ),
                                 SizedBox(
@@ -267,7 +261,6 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                     softWrap: false,
                                     style: TextStyle(
                                       fontSize: 18,
-                                      color: Colors.white,
                                       overflow: TextOverflow.fade,
                                     ),
                                   ),
@@ -279,7 +272,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                               child: Icon(
                                 Icons.lock_outline_rounded,
                                 size: 30,
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 94, 94, 94),
                               ),
                             ),
                           ],
@@ -289,7 +282,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                         padding: EdgeInsets.all(20),
                         width: viewWidth * 0.9,
                         decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
@@ -310,14 +303,13 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                 Text(
                                   "RESPONSÁVEL PELO RECEBIMENTO",
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: const Color.fromARGB(255, 94, 94, 94),
                                     fontSize: 12,
                                   ),
                                 ),
                                 Text(
                                   "${_user?.name?.capitalize()}",
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -337,7 +329,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                               child: Icon(
                                 Icons.lock_person_outlined,
                                 size: 30,
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 94, 94, 94),
                               ),
                             ),
                           ],
@@ -348,7 +340,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                         width: viewWidth * 0.9,
                         // height: viewHeight * 0.2,
                         decoration: BoxDecoration(
-                          color: AppColors.cinzaContainer,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
@@ -365,7 +357,7 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                             Text(
                               "OBSERVAÇÕES",
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 94, 94, 94),
                                 fontSize: 12,
                               ),
                             ),
@@ -383,9 +375,10 @@ class _InitialReceiveScreen extends State<InitialReceiveScreen> {
                                       ),
                                     ),
                                     Text(
-                                      "${observacoesText.isNotEmpty ? observacoesText.capitalize() : "Sem observações"}",
+                                      observacoesText.isNotEmpty
+                                          ? observacoesText.capitalize()
+                                          : "Sem observações",
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 18,
                                       ),
                                     ),
