@@ -46,7 +46,7 @@ class ProductService {
     required String accessToken,
     required String product,
   }) async {
-    final url = Uri.parse('$baseURL/product/search?q=$product');
+    final url = Uri.parse('$baseURL/product/list?q=$product');
 
     try {
       final response = await http.get(
