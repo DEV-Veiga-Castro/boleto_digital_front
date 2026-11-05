@@ -6,6 +6,7 @@ import 'package:boleto_digital/models/user_model.dart';
 import 'package:boleto_digital/screens/history.dart';
 import 'package:boleto_digital/screens/home_screen.dart';
 import 'package:boleto_digital/screens/login_screen.dart';
+import 'package:boleto_digital/screens/app_startup_screen.dart';
 import 'package:boleto_digital/screens/printing.dart';
 import 'package:boleto_digital/screens/receive/initial.dart';
 import 'package:boleto_digital/screens/receive/insert.dart';
@@ -105,8 +106,9 @@ class BoletoDigitalApp extends StatelessWidget {
           cardColor: AppColors.containerDark,
           dividerColor: AppColors.inputBorder,
         ),
-        initialRoute: '/login',
+        initialRoute: '/startup',
         routes: {
+          '/startup': (context) => const AppStartupScreen(),
           '/home': (context) => const HomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/send': (context) => const InitialSendScreen(),
