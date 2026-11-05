@@ -23,11 +23,18 @@ class _RevisionScreenState extends State<RevisionScreen> {
   String? printerMacAddress;
 
   bool _isLoading = false;
+  bool _confirmEnabled = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() => _confirmEnabled = true);
+      }
+    });
   }
 
   Future<bool> requestBluetooth() async {
@@ -192,10 +199,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Passo 03 de 03',
-              style: TextStyle(fontSize: 14),
-            ),
+            Text('Passo 03 de 03', style: TextStyle(fontSize: 14)),
             Text('Revisão'),
           ],
         ),
@@ -527,7 +531,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
           children: [
             AppPrimaryButton(
               label: 'CONFIRMAR',
-              onPressed: _isLoading
+              onPressed: (!_confirmEnabled || _isLoading)
                   ? null
                   : () async {
                       setState(() {

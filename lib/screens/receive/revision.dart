@@ -6,6 +6,7 @@ import 'package:boleto_digital/theme/app_colors.dart';
 import 'package:boleto_digital/widgets/app_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 class RevisionReceiveScreen extends StatefulWidget {
   const RevisionReceiveScreen({super.key});
@@ -16,10 +17,33 @@ class RevisionReceiveScreen extends StatefulWidget {
 
 class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
   final _storage = ClientStorage();
+  final ValueNotifier<int> _dialogSeconds = ValueNotifier<int>(0);
+  bool _confirmEnabled = false;
+  Timer? _dialogTimer;
 
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() => _confirmEnabled = true);
+      }
+    });
+  }
+
+  void _startConfirmationCountdown() {
+    _dialogTimer?.cancel();
+    _dialogSeconds.value = 5;
+
+    _dialogTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_dialogSeconds.value <= 1) {
+        _dialogSeconds.value = 0;
+        timer.cancel();
+      } else {
+        _dialogSeconds.value--;
+      }
+    });
   }
 
   Future<bool> verifyDiscrepancy() async {
@@ -63,6 +87,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
     bool hasDiscrepancies = await verifyDiscrepancy();
 
     if (hasDiscrepancies) {
+      _startConfirmationCountdown();
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -71,10 +96,7 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
             shadowColor: AppColors.vermelhoOui,
             title: const Text(
               "Movimentação com Discrepâncias!",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             content: const SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
@@ -82,30 +104,58 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                 children: [
                   Text(
                     "A movimentação contém discrepâncias entre os itens enviados e os recebidos, tem certeza que deseja confirmar o recebimento?",
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18),
                   ),
                 ],
               ),
             ),
             actions: <Widget>[
+              ValueListenableBuilder<int>(
+                valueListenable: _dialogSeconds,
+                builder: (context, seconds, _) {
+                  final enabled = seconds == 0;
+
+                  return TextButton.icon(
+                    onPressed: enabled
+                        ? () async {
+                            Navigator.pop(context);
+                            await updateTranfer();
+                          }
+                        : null,
+                    icon: const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    label: Text(
+                      enabled ? 'Confirmar' : 'Aguarde ${seconds}s',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.red,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.red,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(width: 20),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                   return;
                 },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(AppColors.verdeBoti),
+                  fixedSize: WidgetStatePropertyAll(Size(98, 36)),
+                ),
                 child: const Text(
                   "Voltar",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              SizedBox(width: 30),
-              TextButton(
-                onPressed: () async {
-                  await updateTranfer();
-                },
-                child: const Text(
-                  "Confirmar",
-                  style: TextStyle(color: Colors.red, fontSize: 18),
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -541,9 +591,11 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
           children: [
             AppPrimaryButton(
               label: 'CONFIRMAR',
-              onPressed: () async {
-                await updateMovimentacao();
-              },
+              onPressed: !_confirmEnabled
+                  ? null
+                  : () async {
+                      await updateMovimentacao();
+                    },
               icon: Icons.arrow_right_outlined,
               backgroundColor: AppColors.verdeBoti,
               minimumSize: Size(viewWidth * 0.8, 40),
