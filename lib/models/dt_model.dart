@@ -130,7 +130,6 @@ class TransferProvider extends ChangeNotifier {
     String accessToken,
     int branchID,
   ) async {
-
     if (_transfer != null) {
       if (_transfer!.lojaDestino != value.lojaDestino) {
         _transfer!.lojaDestino = value.lojaDestino;
@@ -143,23 +142,34 @@ class TransferProvider extends ChangeNotifier {
       return;
     }
 
-    _transfer = value;
-
     final data = await DigitalTransferService().listLastMovimentacao(
       accessToken: accessToken,
       branchID: branchID,
     );
 
-    int transferID = data["transfer_id"];
-    int transferUUID = data["transfer_uuid"];
+    final lastTransferID = _parseTransferID(data["transfer_id"]);
+    final lastTransferUUID = _parseTransferID(data["transfer_uuid"]);
 
-    if (transferUUID != -1) {
-      value.id = transferID + 1;
-      value.uuid = transferUUID + 1;
+    if (lastTransferID == null ||
+        lastTransferUUID == null ||
+        lastTransferID < 0 ||
+        lastTransferUUID < 0) {
+      throw StateError(
+        'Não foi possível obter os identificadores da última movimentação. Tente novamente.',
+      );
     }
 
+    value.id = lastTransferID + 1;
+    value.uuid = lastTransferUUID + 1;
+    _transfer = value;
     notifyListeners();
   }
+
+  int? _parseTransferID(dynamic value) => switch (value) {
+    int id => id,
+    String id => int.tryParse(id),
+    _ => null,
+  };
 
   void addItem(int productID, String? description) {
     if (_transfer == null) return;

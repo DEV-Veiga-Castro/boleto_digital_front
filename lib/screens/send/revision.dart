@@ -47,6 +47,13 @@ class _RevisionScreenState extends State<RevisionScreen> {
   }
 
   Future<void> printTicket() async {
+    final transfer = context.read<TransferProvider>().transfer;
+    if (transfer == null || transfer.id == null || transfer.uuid == null) {
+      throw StateError(
+        'A movimentação foi criada sem um identificador válido. O comprovante não pode ser impresso.',
+      );
+    }
+
     bool bluetoothOn = await requestBluetooth();
 
     if (!bluetoothOn) return;
@@ -67,6 +74,8 @@ class _RevisionScreenState extends State<RevisionScreen> {
       macPrinterAddress: printerMacAddress!,
     );
 
+    if (!connected) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -77,7 +86,7 @@ class _RevisionScreenState extends State<RevisionScreen> {
       ),
     );
 
-    final provider = context.read<TransferProvider>().transfer!;
+    final provider = transfer;
 
     final filiais = context.watch<BranchProvider>().branches;
 
@@ -138,21 +147,32 @@ class _RevisionScreenState extends State<RevisionScreen> {
         );
 
         await AuthService().logout();
-
-        setState(() {});
+        if (mounted) Navigator.pushReplacementNamed(context, '/login');
+        return;
       }
 
       final accessToken = await _storage.getAccessToken();
       final provider = context.read<TransferProvider>();
 
-      final response = await DigitalTransferService().createMovimentacao(
+      final transfer = provider.transfer;
+      if (transfer == null || transfer.id == null || transfer.uuid == null) {
+        throw StateError(
+          'Não foi possível identificar a movimentação. Volte e tente iniciar novamente.',
+        );
+      }
+
+      final result = await DigitalTransferService().createMovimentacao(
         accessToken: accessToken!,
-        digitalTransfer: provider.transfer!,
+        digitalTransfer: transfer,
       );
+
+      if (!result.success) {
+        throw StateError(result.message);
+      }
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("$response!")));
+      ).showSnackBar(SnackBar(content: Text(result.message)));
 
       await printTicket();
 
@@ -165,7 +185,8 @@ class _RevisionScreenState extends State<RevisionScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text("$e!")));
 
-      Navigator.pushNamed(context, '/home');
+      context.read<TransferProvider>().clear();
+      if (mounted) Navigator.pushNamed(context, '/home');
     }
   }
 

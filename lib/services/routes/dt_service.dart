@@ -11,6 +11,13 @@ class UpdateResult {
   UpdateResult(this.success, this.message);
 }
 
+class CreateTransferResult {
+  final bool success;
+  final String message;
+
+  const CreateTransferResult({required this.success, required this.message});
+}
+
 class DigitalTransferService {
   var baseURL = const String.fromEnvironment('API_URL');
 
@@ -46,7 +53,7 @@ class DigitalTransferService {
     }
   }
 
-  Future<String> createMovimentacao({
+  Future<CreateTransferResult> createMovimentacao({
     required String accessToken,
     required DigitalTransfer digitalTransfer,
   }) async {
@@ -69,17 +76,38 @@ class DigitalTransferService {
       print("STATUS: ${response.statusCode}");
       print("DETAIL BODY: ${response.body}");
 
+      final responseData = _decodeResponse(response.body);
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-
-        return data['message'];
+        return CreateTransferResult(
+          success: true,
+          message:
+              responseData['message']?.toString() ??
+              'Movimentação criada com sucesso',
+        );
       }
-    } catch (e) {
-      // print("Erro ao salvar movimentação: $e");
-      return "Erro ao salvar movimentação: $e";
-    }
 
-    return ":)";
+      return CreateTransferResult(
+        success: false,
+        message:
+            responseData['detail']?.toString() ??
+            responseData['message']?.toString() ??
+            'Falha ao criar movimentação (HTTP ${response.statusCode})',
+      );
+    } catch (e) {
+      return CreateTransferResult(
+        success: false,
+        message: 'Erro ao salvar movimentação: $e',
+      );
+    }
+  }
+
+  Map<String, dynamic> _decodeResponse(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+    } catch (_) {
+      return <String, dynamic>{};
+    }
   }
 
   Future<UpdateResult> deleteMovimentacaoItem({
