@@ -139,7 +139,6 @@ class _RevisionReceiveScreen extends State<RevisionReceiveScreen> {
                   );
                 },
               ),
-              SizedBox(width: 20),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);

@@ -197,15 +197,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         decoration: const InputDecoration(
                           hintText: 'nome.sobrenome',
-                          hintStyle: TextStyle(color: Color.fromARGB(150, 94, 94, 94)),
+                          hintStyle: TextStyle(
+                            color: Color.fromARGB(150, 94, 94, 94),
+                          ),
                           label: Text(
                             'E-mail ou Usuário',
-                            style: TextStyle(color: Color.fromARGB(255, 94, 94, 94), fontSize: 16),
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 94, 94, 94),
+                              fontSize: 16,
+                            ),
                           ),
                           border: InputBorder.none,
                           filled: true,
                           fillColor: Colors.transparent,
-                          icon: Icon(Icons.person_outline_rounded, size: 26),
+                          icon: Icon(
+                            Icons.person_outline_rounded,
+                            size: 26,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
@@ -231,15 +240,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         decoration: const InputDecoration(
                           hintText: '**********',
-                          hintStyle: TextStyle(color: Color.fromARGB(150, 94, 94, 94)),
+                          hintStyle: TextStyle(
+                            color: Color.fromARGB(150, 94, 94, 94),
+                          ),
                           label: Text(
                             'Senha',
-                            style: TextStyle(color: Color.fromARGB(255, 94, 94, 94), fontSize: 16),
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 94, 94, 94),
+                              fontSize: 16,
+                            ),
                           ),
                           border: InputBorder.none,
                           filled: true,
                           fillColor: Colors.transparent,
-                          icon: Icon(Icons.lock_outline_rounded, size: 26),
+                          icon: Icon(
+                            Icons.lock_outline_rounded,
+                            size: 26,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
@@ -258,7 +276,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 url,
                                 mode: LaunchMode.externalApplication,
                               )) {
-                                throw Exception("Não foi possível abrir o link: $url");
+                                throw Exception(
+                                  "Não foi possível abrir o link: $url",
+                                );
                               }
                             },
                             child: const Text(
